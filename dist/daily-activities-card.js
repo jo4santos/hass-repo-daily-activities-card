@@ -91,11 +91,11 @@ class DailyActivitiesCard extends LitElement {
         }
     }
 
-    _ifDue(activity, due, dueSoon) {
-        if (activity.difference < 0) return due;
+    _getActivityState(activity) {
+        if (activity.difference < 0) return "am-overdue";
         if (activity.difference < this._config.soonHours * 60 * 60 * 1000)
-            return dueSoon;
-        return "";
+            return "am-due-soon";
+        return "am-default";
     }
 
     render() {
@@ -110,12 +110,7 @@ class DailyActivitiesCard extends LitElement {
                                 <div
                                     @click=${() =>
                                         this._showUpdateDialog(activity)}
-                                    class="am-item
-                                    ${this._ifDue(
-                                        activity,
-                                        "am-due",
-                                        "am-due-soon"
-                                    )}"
+                                    class="am-item ${this._getActivityState(activity)}"
                                 >
                                     <div class="am-icon">
                                         <ha-icon
@@ -315,14 +310,8 @@ class DailyActivitiesCard extends LitElement {
 
     static styles = css`
         :host {
-            --am-item-primary-color: #ffffff;
-            --am-item-background-color: #00000000;
-            --am-item-due-primary-color: #ff4a4a;
-            --am-item-due-background-color: #ff4a4a14;
-            --am-item-due-soon-primary-color: #ffffff;
-            --am-item-due-soon-background-color: #00000020;
-            --am-item-primary-font-size: 14px;
-            --am-item-secondary-font-size: 12px;
+            --am-item-primary-font-size: 18px;
+            --am-item-secondary-font-size: 14px;
             --mdc-theme-primary: var(--primary-text-color);
         }
         .content {
@@ -335,21 +324,30 @@ class DailyActivitiesCard extends LitElement {
 
         .am-item {
             position: relative;
-            display: inline-block;
             display: flex;
-            border-radius: 8px;
+            border-radius: 12px;
             align-items: center;
-            padding: 12px;
+            padding: 16px;
             cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .am-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .am-icon {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             border-radius: 50%;
-            background-color: #333;
-            padding: 5px;
-            margin-right: 12px;
-            --mdc-icon-size: 24px;
+            padding: 8px;
+            margin-right: 16px;
+            --mdc-icon-size: 28px;
+            min-width: 44px;
+            min-height: 44px;
         }
 
         .am-item-name {
@@ -371,19 +369,48 @@ class DailyActivitiesCard extends LitElement {
             align-items: center;
         }
 
-        .am-due-soon {
-            color: var(--am-item-due-soon-primary-color, #ffffff);
-            background-color: var(
-                --am-item-due-soon-background-color,
-                #00000014
-            );
-            --mdc-theme-primary: var(--am-item-due-soon-primary-color);
+        .am-default {
+            background-color: var(--card-background-color, #fff);
+            color: var(--primary-text-color);
+            border-color: var(--divider-color, #e0e0e0);
         }
 
-        .am-due {
-            color: var(--am-item-due-primary-color, #ffffff);
-            background-color: var(--am-item-due-background-color, #00000014);
-            --mdc-theme-primary: var(--am-item-due-primary-color);
+        .am-default .am-icon {
+            background-color: var(--primary-color, #03a9f4);
+            color: white;
+        }
+
+        .am-due-soon {
+            background-color: #fff3cd;
+            color: #856404;
+            border-color: #ffeaa7;
+        }
+
+        .am-due-soon .am-icon {
+            background-color: #ffc107;
+            color: #856404;
+        }
+
+        .am-overdue {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+
+        .am-overdue .am-icon {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .am-completed {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+
+        .am-completed .am-icon {
+            background-color: #28a745;
+            color: white;
         }
 
         .confirm-grid {
