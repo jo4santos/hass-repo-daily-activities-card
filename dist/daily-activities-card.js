@@ -81,14 +81,23 @@ class DailyActivitiesCard extends LitElement {
             // Update when loading
             this._fetchData();
 
-            // Update when changes are made
+            // Update when changes are made - subscribe to multiple events
             this._hass.connection.subscribeEvents(
                 () => this._fetchData(),
                 "activity_manager_updated"
             );
+            
+            // Also listen for state changes
+            this._hass.connection.subscribeEvents(
+                () => this._fetchData(),
+                "state_changed"
+            );
 
             this._runOnce = true;
         }
+        
+        // Always update data when hass changes (ensures fresh state)
+        this._fetchData();
     }
 
     _getActivityState(activity) {
@@ -321,16 +330,16 @@ class DailyActivitiesCard extends LitElement {
 
     static styles = css`
         :host {
-            --am-item-primary-font-size: 20px;
-            --am-item-secondary-font-size: 12px;
+            --am-item-primary-font-size: 22px;
+            --am-item-secondary-font-size: 13px;
             --mdc-theme-primary: var(--primary-text-color);
         }
         .content {
-            padding: 12px;
+            padding: 8px;
         }
         .am-grid {
             display: grid;
-            gap: 12px;
+            gap: 8px;
         }
 
         .am-item {
@@ -338,7 +347,7 @@ class DailyActivitiesCard extends LitElement {
             display: flex;
             border-radius: 12px;
             align-items: center;
-            padding: 16px;
+            padding: 12px;
             cursor: pointer;
             border: 2px solid transparent;
         }
@@ -348,11 +357,11 @@ class DailyActivitiesCard extends LitElement {
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            padding: 4px;
-            margin-right: 16px;
-            --mdc-icon-size: 32px;
-            min-width: 40px;
-            min-height: 40px;
+            padding: 6px;
+            margin-right: 14px;
+            --mdc-icon-size: 36px;
+            min-width: 48px;
+            min-height: 48px;
         }
 
         .am-item-name {
@@ -378,35 +387,35 @@ class DailyActivitiesCard extends LitElement {
         }
 
         .am-done {
-            background-color: #d4edda;
-            color: #155724;
-            border-color: #c3e6cb;
+            background-color: #c8e6c9;
+            color: #1b5e20;
+            border-color: #a5d6a7;
         }
 
         .am-done .am-icon {
-            background-color: #28a745;
+            background-color: #2e7d32;
             color: white;
         }
 
         .am-soon {
-            background-color: #fff3cd;
-            color: #856404;
-            border-color: #ffeaa7;
+            background-color: #fff8e1;
+            color: #e65100;
+            border-color: #ffcc02;
         }
 
         .am-soon .am-icon {
-            background-color: #ffc107;
-            color: #856404;
+            background-color: #ff9800;
+            color: white;
         }
 
         .am-overdue {
-            background-color: #f8d7da;
-            color: #721c24;
-            border-color: #f5c6cb;
+            background-color: #ffebee;
+            color: #b71c1c;
+            border-color: #ef9a9a;
         }
 
         .am-overdue .am-icon {
-            background-color: #dc3545;
+            background-color: #d32f2f;
             color: white;
         }
 
