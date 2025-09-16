@@ -260,6 +260,17 @@ class DailyActivitiesCard extends LitElement {
                 return true;
             })
             .sort((a, b) => {
+                // Helper function to check if a task name has a prefix
+                const hasPrefix = (name) => /^[A-Z]-/.test(name);
+                
+                const aHasPrefix = hasPrefix(a["name"]);
+                const bHasPrefix = hasPrefix(b["name"]);
+                
+                // If one has prefix and other doesn't, put prefixed ones at bottom
+                if (aHasPrefix && !bHasPrefix) return 1;
+                if (!aHasPrefix && bHasPrefix) return -1;
+                
+                // If both have same prefix status, sort by category then name (original logic)
                 if (a["category"] == b["category"])
                     return a["name"]
                         .toLowerCase()
