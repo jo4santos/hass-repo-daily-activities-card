@@ -531,7 +531,7 @@ class DailyActivitiesCard extends LitElement {
     }
 
     static styles = css`
-        /* Daily Activities Card v1.0.10 - Adjust compact mode dimensions and spacing */
+        /* Daily Activities Card v1.0.11 - Remove task borders */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
@@ -635,7 +635,7 @@ class DailyActivitiesCard extends LitElement {
             align-items: center;
             padding: var(--am-item-padding, 12px);
             cursor: pointer;
-            border: 2px solid transparent;
+            border: none !important;
         }
 
         .am-icon {
@@ -683,7 +683,6 @@ class DailyActivitiesCard extends LitElement {
         .am-done {
             background-color: #c8e6c9;
             color: #1b5e20;
-            border-color: #a5d6a7;
         }
 
         .am-done .am-icon {
@@ -694,7 +693,6 @@ class DailyActivitiesCard extends LitElement {
         .am-soon {
             background-color: #fff8e1;
             color: #e65100;
-            border-color: #ffcc02;
         }
 
         .am-soon .am-icon {
@@ -705,7 +703,6 @@ class DailyActivitiesCard extends LitElement {
         .am-overdue {
             background-color: #ffebee;
             color: #b71c1c;
-            border-color: #ef9a9a;
         }
 
         .am-overdue .am-icon {
