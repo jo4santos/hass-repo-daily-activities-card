@@ -68,6 +68,7 @@ class DailyActivitiesCard extends LitElement {
         this._config.icon = config.icon || "mdi:format-list-checkbox";
         this._config.showHeader = config.showHeader !== false; // Default to true
         this._config.compact = config.compact || false; // Default to false
+        this._config.hideBackground = config.hideBackground || false; // Default to false
 
         this._runOnce = false;
         this._fetchData();
@@ -110,8 +111,56 @@ class DailyActivitiesCard extends LitElement {
     }
 
     render() {
+        const cardClasses = [
+            this._config.compact ? 'compact' : '',
+            this._config.hideBackground ? 'no-background' : ''
+        ].filter(c => c).join(' ');
+        
+        if (this._config.hideBackground) {
+            return html`
+                <div class="${cardClasses}">
+                    <div class="am-grid">
+                        ${repeat(
+                            this._activities,
+                            (activity) => activity.name,
+                            (activity) => html`
+                                <div
+                                    @click=${() =>
+                                        this._showUpdateDialog(activity)}
+                                    class="am-item ${this._getActivityState(activity)}"
+                                >
+                                    <div class="am-icon">
+                                        <ha-icon
+                                            icon="${activity.icon
+                                                ? activity.icon
+                                                : "mdi:check-circle-outline"}"
+                                        >
+                                        </ha-icon>
+                                    </div>
+                                    <span class="am-item-name">
+                                        <div class="am-item-primary">
+                                            ${activity.name}
+                                        </div>
+                                        <div class="am-item-secondary">
+                                            ${utils._formatTimeAgo(
+                                                activity.due
+                                            )}
+                                        </div>
+                                    </span>
+                                    ${this._renderActionButton(activity)}
+                                </div>
+                            `
+                        )}
+                    </div>
+                </div>
+                ${this._config.showHeader ? this._renderAddDialog() : ''}
+                ${this._renderUpdateDialog()}
+                ${this._renderRemoveDialog()}
+            `;
+        }
+        
         return html`
-            <ha-card class="${this._config.compact ? 'compact' : ''}">
+            <ha-card class="${cardClasses}">
                 ${this._config.showHeader ? this._renderHeader() : ''}
                 <div class="content">
                     <div class="am-grid">
@@ -482,11 +531,24 @@ class DailyActivitiesCard extends LitElement {
     }
 
     static styles = css`
-        /* Daily Activities Card v1.0.1 - Ultra-dense compact mode */
+        /* Daily Activities Card v1.0.2 - Hide background option */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
             --mdc-theme-primary: var(--primary-text-color);
+        }
+        
+        /* No background mode */
+        .no-background {
+            background: none !important;
+            border: none !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            --am-content-padding: 0px;
+        }
+        
+        .no-background .am-grid {
+            gap: var(--am-grid-gap, 8px);
         }
         
         /* Compact mode variables - ultra-dense */
@@ -723,6 +785,7 @@ class DailyActivitiesCardEditor extends LitElement {
         _config.showDueOnly = ev.detail.value.showDueOnly;
         _config.showHeader = ev.detail.value.showHeader;
         _config.compact = ev.detail.value.compact;
+        _config.hideBackground = ev.detail.value.hideBackground;
         _config.icon = ev.detail.value.icon;
         this._config = _config;
 
@@ -755,6 +818,7 @@ class DailyActivitiesCardEditor extends LitElement {
                     { name: "icon", selector: { icon: {} } },
                     { name: "showHeader", selector: { boolean: {} } },
                     { name: "compact", selector: { boolean: {} } },
+                    { name: "hideBackground", selector: { boolean: {} } },
                     { name: "showDueOnly", selector: { boolean: {} } },
                     {
                         name: "soonHours",
@@ -773,6 +837,7 @@ class DailyActivitiesCardEditor extends LitElement {
             icon: "Icon",
             showHeader: "Show header",
             compact: "Compact mode",
+            hideBackground: "Hide card background",
             showDueOnly: "Only show activities that are due",
             soonHours: "Soon to be due (styles the activity)",
             mode: "Manage mode",

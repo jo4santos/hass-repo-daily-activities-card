@@ -62,6 +62,15 @@ compact: true
 showHeader: false
 ```
 
+### Background-less Configuration
+
+```yaml
+type: custom:daily-activities-card
+category: Home
+hideBackground: true
+showHeader: false
+```
+
 ## Configuration Options
 
 | Name | Type | Required | Default | Description |
@@ -69,6 +78,7 @@ showHeader: false
 | `category` | string | No | - | Filter activities to a specific category |
 | `showHeader` | boolean | No | `true` | Show/hide the header with title and action buttons |
 | `compact` | boolean | No | `false` | Enable compact mode with smaller text, icons, and padding |
+| `hideBackground` | boolean | No | `false` | Remove card background, border, and padding for seamless integration |
 | `mode` | string | No | `basic` | Set to "manage" to enable delete buttons |
 | `showDueOnly` | boolean | No | `false` | Show only activities that are due |
 | `soonHours` | number | No | `24` | Hours threshold for "due soon" styling |
