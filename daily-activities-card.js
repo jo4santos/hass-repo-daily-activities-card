@@ -531,7 +531,7 @@ class DailyActivitiesCard extends LitElement {
     }
 
     static styles = css`
-        /* Daily Activities Card v1.0.2 - Hide background option */
+        /* Daily Activities Card v1.0.3 - Fix compact mode with hideBackground */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
@@ -552,12 +552,12 @@ class DailyActivitiesCard extends LitElement {
         }
         
         /* Compact mode variables - ultra-dense */
-        ha-card.compact {
+        ha-card.compact, .compact {
             --am-item-primary-font-size: 13px;
             --am-item-secondary-font-size: 9px;
             --am-content-padding: 4px;
             --am-grid-gap: 3px;
-            --am-item-padding: 6px;
+            --am-item-padding: 4px;
             --am-icon-size: 16px;
             --am-icon-container: 20px;
             --am-icon-padding: 2px;
@@ -566,7 +566,7 @@ class DailyActivitiesCard extends LitElement {
         }
         
         /* Default mode variables */
-        ha-card:not(.compact) {
+        ha-card:not(.compact), div:not(.compact) {
             --am-content-padding: 8px;
             --am-grid-gap: 8px;
             --am-item-padding: 12px;
@@ -611,7 +611,7 @@ class DailyActivitiesCard extends LitElement {
             line-height: 1.2;
         }
         
-        ha-card.compact .am-item-name {
+        ha-card.compact .am-item-name, .compact .am-item-name {
             line-height: 1.1;
         }
 
@@ -626,7 +626,7 @@ class DailyActivitiesCard extends LitElement {
             opacity: 0.8;
         }
         
-        ha-card.compact .am-item-secondary {
+        ha-card.compact .am-item-secondary, .compact .am-item-secondary {
             margin-top: 0px;
         }
 
