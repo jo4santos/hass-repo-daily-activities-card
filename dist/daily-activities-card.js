@@ -531,7 +531,7 @@ class DailyActivitiesCard extends LitElement {
     }
 
     static styles = css`
-        /* Daily Activities Card v1.0.4 - Fix compact CSS specificity and reduce padding */
+        /* Daily Activities Card v1.0.8 - Fix line spacing in compact mode */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
@@ -555,14 +555,46 @@ class DailyActivitiesCard extends LitElement {
         :host ha-card.compact, :host .compact {
             --am-item-primary-font-size: 13px;
             --am-item-secondary-font-size: 9px;
-            --am-content-padding: 2px;
-            --am-grid-gap: 2px;
-            --am-item-padding: 3px;
+            --am-content-padding: 1px;
+            --am-grid-gap: 1px;
+            --am-item-padding: 2px;
             --am-icon-size: 16px;
             --am-icon-container: 20px;
             --am-icon-padding: 2px;
             --am-icon-margin: 6px;
             --am-header-padding: 4px;
+        }
+
+        /* Direct compact mode selectors for all elements */
+        .compact .am-item-primary {
+            font-size: 13px !important;
+        }
+        .compact .am-item-secondary {
+            font-size: 9px !important;
+        }
+        .compact .content {
+            padding: 1px !important;
+        }
+        .compact .am-grid {
+            gap: 1px !important;
+        }
+        .compact .am-item {
+            padding: 2px !important;
+        }
+        .compact .am-icon {
+            width: 20px !important;
+            height: 20px !important;
+            min-width: 20px !important;
+            min-height: 20px !important;
+            padding: 2px !important;
+            margin-right: 6px !important;
+            --mdc-icon-size: 16px !important;
+        }
+        .compact .am-item-name {
+            line-height: 1.0 !important;
+        }
+        .compact .am-item-secondary {
+            margin-top: 1px !important;
         }
         
         /* Default mode variables */
