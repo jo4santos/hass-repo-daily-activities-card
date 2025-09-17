@@ -482,6 +482,7 @@ class DailyActivitiesCard extends LitElement {
     }
 
     static styles = css`
+        /* Daily Activities Card v1.0.1 - Ultra-dense compact mode */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
