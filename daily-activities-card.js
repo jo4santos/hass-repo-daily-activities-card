@@ -531,7 +531,7 @@ class DailyActivitiesCard extends LitElement {
     }
 
     static styles = css`
-        /* Daily Activities Card v1.0.8 - Fix line spacing in compact mode */
+        /* Daily Activities Card v1.0.9 - Add specific icon selectors and fix text spacing */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
@@ -571,6 +571,7 @@ class DailyActivitiesCard extends LitElement {
         }
         .compact .am-item-secondary {
             font-size: 9px !important;
+            margin-top: 3px !important;
         }
         .compact .content {
             padding: 1px !important;
@@ -590,11 +591,21 @@ class DailyActivitiesCard extends LitElement {
             margin-right: 6px !important;
             --mdc-icon-size: 16px !important;
         }
+        /* More specific selectors for icon states in compact mode */
+        .compact .am-done .am-icon,
+        .compact .am-soon .am-icon,
+        .compact .am-overdue .am-icon,
+        .compact .am-item .am-icon {
+            width: 20px !important;
+            height: 20px !important;
+            min-width: 20px !important;
+            min-height: 20px !important;
+            padding: 2px !important;
+            margin-right: 6px !important;
+            --mdc-icon-size: 16px !important;
+        }
         .compact .am-item-name {
             line-height: 1.0 !important;
-        }
-        .compact .am-item-secondary {
-            margin-top: 1px !important;
         }
         
         /* Default mode variables */
