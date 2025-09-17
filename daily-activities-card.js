@@ -531,7 +531,7 @@ class DailyActivitiesCard extends LitElement {
     }
 
     static styles = css`
-        /* Daily Activities Card v1.0.9 - Add specific icon selectors and fix text spacing */
+        /* Daily Activities Card v1.0.10 - Adjust compact mode dimensions and spacing */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
@@ -556,10 +556,10 @@ class DailyActivitiesCard extends LitElement {
             --am-item-primary-font-size: 13px;
             --am-item-secondary-font-size: 9px;
             --am-content-padding: 1px;
-            --am-grid-gap: 1px;
-            --am-item-padding: 2px;
-            --am-icon-size: 16px;
-            --am-icon-container: 20px;
+            --am-grid-gap: 4px;
+            --am-item-padding: 0px 8px;
+            --am-icon-size: 18px;
+            --am-icon-container: 22px;
             --am-icon-padding: 2px;
             --am-icon-margin: 6px;
             --am-header-padding: 4px;
@@ -577,32 +577,33 @@ class DailyActivitiesCard extends LitElement {
             padding: 1px !important;
         }
         .compact .am-grid {
-            gap: 1px !important;
+            gap: 4px !important;
         }
         .compact .am-item {
-            padding: 2px !important;
+            padding: 0px 8px !important;
+            height: 40px !important;
         }
         .compact .am-icon {
-            width: 20px !important;
-            height: 20px !important;
-            min-width: 20px !important;
-            min-height: 20px !important;
+            width: 22px !important;
+            height: 22px !important;
+            min-width: 22px !important;
+            min-height: 22px !important;
             padding: 2px !important;
             margin-right: 6px !important;
-            --mdc-icon-size: 16px !important;
+            --mdc-icon-size: 18px !important;
         }
         /* More specific selectors for icon states in compact mode */
         .compact .am-done .am-icon,
         .compact .am-soon .am-icon,
         .compact .am-overdue .am-icon,
         .compact .am-item .am-icon {
-            width: 20px !important;
-            height: 20px !important;
-            min-width: 20px !important;
-            min-height: 20px !important;
+            width: 22px !important;
+            height: 22px !important;
+            min-width: 22px !important;
+            min-height: 22px !important;
             padding: 2px !important;
             margin-right: 6px !important;
-            --mdc-icon-size: 16px !important;
+            --mdc-icon-size: 18px !important;
         }
         .compact .am-item-name {
             line-height: 1.0 !important;
