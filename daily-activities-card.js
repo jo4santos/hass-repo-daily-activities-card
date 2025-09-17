@@ -483,38 +483,38 @@ class DailyActivitiesCard extends LitElement {
 
     static styles = css`
         :host {
-            --am-item-primary-font-size: 14px;
-            --am-item-secondary-font-size: 12px;
+            --am-item-primary-font-size: 22px;
+            --am-item-secondary-font-size: 13px;
             --mdc-theme-primary: var(--primary-text-color);
         }
         
         /* Compact mode variables - ultra-dense */
         ha-card.compact {
-            --am-item-primary-font-size: 12px;
-            --am-item-secondary-font-size: 10px;
-            --am-content-padding: 12px;
-            --am-grid-gap: 6px;
+            --am-item-primary-font-size: 13px;
+            --am-item-secondary-font-size: 9px;
+            --am-content-padding: 4px;
+            --am-grid-gap: 3px;
             --am-item-padding: 6px;
-            --am-icon-size: 18px;
-            --am-icon-container: 24px;
-            --am-icon-padding: 3px;
-            --am-icon-margin: 8px;
-            --am-header-padding: 8px;
+            --am-icon-size: 16px;
+            --am-icon-container: 20px;
+            --am-icon-padding: 2px;
+            --am-icon-margin: 6px;
+            --am-header-padding: 6px;
         }
         
-        /* Default mode variables - matching original */
+        /* Default mode variables */
         ha-card:not(.compact) {
-            --am-content-padding: 12px;
-            --am-grid-gap: 12px;
+            --am-content-padding: 8px;
+            --am-grid-gap: 8px;
             --am-item-padding: 12px;
-            --am-icon-size: 24px;
-            --am-icon-container: 40px;
-            --am-icon-padding: 5px;
-            --am-icon-margin: 12px;
+            --am-icon-size: 36px;
+            --am-icon-container: 48px;
+            --am-icon-padding: 6px;
+            --am-icon-margin: 14px;
             --am-header-padding: 12px;
         }
         .content {
-            padding: 0 var(--am-content-padding, 12px) var(--am-content-padding, 12px) var(--am-content-padding, 12px);
+            padding: var(--am-content-padding, 8px);
         }
         .am-grid {
             display: grid;
