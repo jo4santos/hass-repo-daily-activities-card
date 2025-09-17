@@ -47,9 +47,19 @@ category: Home
 type: custom:daily-activities-card
 category: Home
 showHeader: true
+compact: false
 mode: manage
 showDueOnly: true
 soonHours: 24
+```
+
+### Compact Mode Configuration
+
+```yaml
+type: custom:daily-activities-card
+category: Home
+compact: true
+showHeader: false
 ```
 
 ## Configuration Options
@@ -58,6 +68,7 @@ soonHours: 24
 |------|------|----------|---------|-------------|
 | `category` | string | No | - | Filter activities to a specific category |
 | `showHeader` | boolean | No | `true` | Show/hide the header with title and action buttons |
+| `compact` | boolean | No | `false` | Enable compact mode with smaller text, icons, and padding |
 | `mode` | string | No | `basic` | Set to "manage" to enable delete buttons |
 | `showDueOnly` | boolean | No | `false` | Show only activities that are due |
 | `soonHours` | number | No | `24` | Hours threshold for "due soon" styling |
@@ -65,10 +76,22 @@ soonHours: 24
 ## How It Works
 
 ### Display
-- Shows a clean list of activities without header section
+- Shows a clean list of activities with optional header
 - Each activity displays name, icon, and time until due
 - Color-coded indicators for overdue (red) and due soon activities
 - Click any activity to mark it as completed
+
+### Display Modes
+
+**Normal Mode** (`compact: false`):
+- Larger text (22px primary, 13px secondary)
+- Bigger icons (36px) with more padding
+- Spacious layout for better readability
+
+**Compact Mode** (`compact: true`):
+- Smaller text (16px primary, 11px secondary) 
+- Smaller icons (24px) with tighter padding
+- Denser layout perfect for dashboards with limited space
 
 ### Manage Mode
 - Enable with `mode: manage` in configuration

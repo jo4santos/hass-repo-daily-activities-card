@@ -67,6 +67,7 @@ class DailyActivitiesCard extends LitElement {
         this._config.soonHours = config.soonHours || 24;
         this._config.icon = config.icon || "mdi:format-list-checkbox";
         this._config.showHeader = config.showHeader !== false; // Default to true
+        this._config.compact = config.compact || false; // Default to false
 
         this._runOnce = false;
         this._fetchData();
@@ -110,7 +111,7 @@ class DailyActivitiesCard extends LitElement {
 
     render() {
         return html`
-            <ha-card>
+            <ha-card class="${this._config.compact ? 'compact' : ''}">
                 ${this._config.showHeader ? this._renderHeader() : ''}
                 <div class="content">
                     <div class="am-grid">
@@ -486,12 +487,38 @@ class DailyActivitiesCard extends LitElement {
             --am-item-secondary-font-size: 13px;
             --mdc-theme-primary: var(--primary-text-color);
         }
+        
+        /* Compact mode variables */
+        ha-card.compact {
+            --am-item-primary-font-size: 16px;
+            --am-item-secondary-font-size: 11px;
+            --am-content-padding: 6px;
+            --am-grid-gap: 6px;
+            --am-item-padding: 8px;
+            --am-icon-size: 24px;
+            --am-icon-container: 32px;
+            --am-icon-padding: 3px;
+            --am-icon-margin: 10px;
+            --am-header-padding: 8px;
+        }
+        
+        /* Default mode variables */
+        ha-card:not(.compact) {
+            --am-content-padding: 8px;
+            --am-grid-gap: 8px;
+            --am-item-padding: 12px;
+            --am-icon-size: 36px;
+            --am-icon-container: 48px;
+            --am-icon-padding: 6px;
+            --am-icon-margin: 14px;
+            --am-header-padding: 12px;
+        }
         .content {
-            padding: 8px;
+            padding: var(--am-content-padding, 8px);
         }
         .am-grid {
             display: grid;
-            gap: 8px;
+            gap: var(--am-grid-gap, 8px);
         }
 
         .am-item {
@@ -499,7 +526,7 @@ class DailyActivitiesCard extends LitElement {
             display: flex;
             border-radius: 12px;
             align-items: center;
-            padding: 12px;
+            padding: var(--am-item-padding, 12px);
             cursor: pointer;
             border: 2px solid transparent;
         }
@@ -509,11 +536,11 @@ class DailyActivitiesCard extends LitElement {
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            padding: 6px;
-            margin-right: 14px;
-            --mdc-icon-size: 36px;
-            min-width: 48px;
-            min-height: 48px;
+            padding: var(--am-icon-padding, 6px);
+            margin-right: var(--am-icon-margin, 14px);
+            --mdc-icon-size: var(--am-icon-size, 36px);
+            min-width: var(--am-icon-container, 48px);
+            min-height: var(--am-icon-container, 48px);
         }
 
         .am-item-name {
@@ -575,7 +602,7 @@ class DailyActivitiesCard extends LitElement {
             display: grid;
             grid-template-columns: 52px auto min-content;
             align-items: center;
-            padding: 12px;
+            padding: var(--am-header-padding, 12px);
         }
         
         .icon-container {
@@ -686,6 +713,7 @@ class DailyActivitiesCardEditor extends LitElement {
         _config.soonHours = ev.detail.value.soonHours;
         _config.showDueOnly = ev.detail.value.showDueOnly;
         _config.showHeader = ev.detail.value.showHeader;
+        _config.compact = ev.detail.value.compact;
         _config.icon = ev.detail.value.icon;
         this._config = _config;
 
@@ -717,6 +745,7 @@ class DailyActivitiesCardEditor extends LitElement {
                     },
                     { name: "icon", selector: { icon: {} } },
                     { name: "showHeader", selector: { boolean: {} } },
+                    { name: "compact", selector: { boolean: {} } },
                     { name: "showDueOnly", selector: { boolean: {} } },
                     {
                         name: "soonHours",
@@ -734,6 +763,7 @@ class DailyActivitiesCardEditor extends LitElement {
             category: "Category",
             icon: "Icon",
             showHeader: "Show header",
+            compact: "Compact mode",
             showDueOnly: "Only show activities that are due",
             soonHours: "Soon to be due (styles the activity)",
             mode: "Manage mode",
