@@ -488,18 +488,18 @@ class DailyActivitiesCard extends LitElement {
             --mdc-theme-primary: var(--primary-text-color);
         }
         
-        /* Compact mode variables */
+        /* Compact mode variables - ultra-dense */
         ha-card.compact {
-            --am-item-primary-font-size: 16px;
-            --am-item-secondary-font-size: 11px;
-            --am-content-padding: 6px;
-            --am-grid-gap: 6px;
-            --am-item-padding: 8px;
-            --am-icon-size: 24px;
-            --am-icon-container: 32px;
-            --am-icon-padding: 3px;
-            --am-icon-margin: 10px;
-            --am-header-padding: 8px;
+            --am-item-primary-font-size: 13px;
+            --am-item-secondary-font-size: 9px;
+            --am-content-padding: 4px;
+            --am-grid-gap: 3px;
+            --am-item-padding: 6px;
+            --am-icon-size: 16px;
+            --am-icon-container: 20px;
+            --am-icon-padding: 2px;
+            --am-icon-margin: 6px;
+            --am-header-padding: 6px;
         }
         
         /* Default mode variables */
@@ -547,6 +547,10 @@ class DailyActivitiesCard extends LitElement {
             flex: 1 1 auto;
             line-height: 1.2;
         }
+        
+        ha-card.compact .am-item-name {
+            line-height: 1.1;
+        }
 
         .am-item-primary {
             font-size: var(--am-item-primary-font-size, 14px);
@@ -557,6 +561,10 @@ class DailyActivitiesCard extends LitElement {
             font-size: var(--am-item-secondary-font-size, 12px);
             margin-top: 2px;
             opacity: 0.8;
+        }
+        
+        ha-card.compact .am-item-secondary {
+            margin-top: 0px;
         }
 
         .am-action {

@@ -89,9 +89,9 @@ showHeader: false
 - Spacious layout for better readability
 
 **Compact Mode** (`compact: true`):
-- Smaller text (16px primary, 11px secondary) 
-- Smaller icons (24px) with tighter padding
-- Denser layout perfect for dashboards with limited space
+- Much smaller text (13px primary, 9px secondary) 
+- Tiny icons (16px) with minimal padding
+- Ultra-dense layout perfect for space-constrained dashboards
 
 ### Manage Mode
 - Enable with `mode: manage` in configuration
