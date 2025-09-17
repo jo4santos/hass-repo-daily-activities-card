@@ -531,7 +531,7 @@ class DailyActivitiesCard extends LitElement {
     }
 
     static styles = css`
-        /* Daily Activities Card v1.0.3 - Fix compact mode with hideBackground */
+        /* Daily Activities Card v1.0.4 - Fix compact CSS specificity and reduce padding */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
@@ -552,21 +552,21 @@ class DailyActivitiesCard extends LitElement {
         }
         
         /* Compact mode variables - ultra-dense */
-        ha-card.compact, .compact {
+        :host ha-card.compact, :host .compact {
             --am-item-primary-font-size: 13px;
             --am-item-secondary-font-size: 9px;
-            --am-content-padding: 4px;
-            --am-grid-gap: 3px;
-            --am-item-padding: 4px;
+            --am-content-padding: 2px;
+            --am-grid-gap: 2px;
+            --am-item-padding: 3px;
             --am-icon-size: 16px;
             --am-icon-container: 20px;
             --am-icon-padding: 2px;
             --am-icon-margin: 6px;
-            --am-header-padding: 6px;
+            --am-header-padding: 4px;
         }
         
         /* Default mode variables */
-        ha-card:not(.compact), div:not(.compact) {
+        :host ha-card:not(.compact), :host div:not(.compact) {
             --am-content-padding: 8px;
             --am-grid-gap: 8px;
             --am-item-padding: 12px;
@@ -611,8 +611,8 @@ class DailyActivitiesCard extends LitElement {
             line-height: 1.2;
         }
         
-        ha-card.compact .am-item-name, .compact .am-item-name {
-            line-height: 1.1;
+        :host ha-card.compact .am-item-name, :host .compact .am-item-name {
+            line-height: 1.0;
         }
 
         .am-item-primary {
@@ -626,8 +626,8 @@ class DailyActivitiesCard extends LitElement {
             opacity: 0.8;
         }
         
-        ha-card.compact .am-item-secondary, .compact .am-item-secondary {
-            margin-top: 0px;
+        :host ha-card.compact .am-item-secondary, :host .compact .am-item-secondary {
+            margin-top: -1px;
         }
 
         .am-action {
