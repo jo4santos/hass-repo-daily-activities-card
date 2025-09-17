@@ -66,6 +66,7 @@ class DailyActivitiesCard extends LitElement {
         this._config.mode = config.mode || "basic";
         this._config.soonHours = config.soonHours || 24;
         this._config.icon = config.icon || "mdi:format-list-checkbox";
+        this._config.showHeader = config.showHeader !== false; // Default to true
 
         this._runOnce = false;
         this._fetchData();
@@ -110,6 +111,7 @@ class DailyActivitiesCard extends LitElement {
     render() {
         return html`
             <ha-card>
+                ${this._config.showHeader ? this._renderHeader() : ''}
                 <div class="content">
                     <div class="am-grid">
                         ${repeat(
@@ -146,8 +148,50 @@ class DailyActivitiesCard extends LitElement {
                     </div>
                 </div>
             </ha-card>
+            ${this._config.showHeader ? this._renderAddDialog() : ''}
             ${this._renderUpdateDialog()}
             ${this._renderRemoveDialog()}
+        `;
+    }
+
+    _renderHeader() {
+        return html`
+            <div class="header">
+                <div class="icon-container">
+                    <ha-icon icon="${this._config.icon}"></ha-icon>
+                </div>
+                <div class="info-container">
+                    <div class="primary">${this._config.header}</div>
+                </div>
+                <div class="action-container">
+                    <mwc-icon-button
+                        @click=${() => {
+                            this.shadowRoot
+                                .querySelector(".manage-form")
+                                .show();
+                        }}
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                d="M14.3 21.7C13.6 21.9 12.8 22 12 22C6.5 22 2 17.5 2 12S6.5 2 12 2C13.3 2 14.6 2.3 15.8 2.7L14.2 4.3C13.5 4.1 12.8 4 12 4C7.6 4 4 7.6 4 12S7.6 20 12 20C12.4 20 12.9 20 13.3 19.9C13.5 20.6 13.9 21.2 14.3 21.7M7.9 10.1L6.5 11.5L11 16L21 6L19.6 4.6L11 13.2L7.9 10.1M18 14V17H15V19H18V22H20V19H23V17H20V14H18Z"
+                            />
+                        </svg>
+                    </mwc-icon-button>
+                    <mwc-icon-button @click=${this._switchMode}>
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                d="M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z"
+                            />
+                        </svg>
+                    </mwc-icon-button>
+                </div>
+            </div>
         `;
     }
 
@@ -173,6 +217,64 @@ class DailyActivitiesCard extends LitElement {
                       `
                     : ``}
             </div>
+        `;
+    }
+
+    _renderAddDialog() {
+        const date = new Date();
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, "0");
+        const day = date.getDate().toString().padStart(2, "0");
+        const hours = date.getHours().toString().padStart(2, "0");
+        const minutes = date.getMinutes().toString().padStart(2, "0");
+        let val = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+        return html`
+            <ha-dialog class="manage-form" heading="Add Activity for ${this._config["category"]}">
+                <form>
+                    <div class="am-add-form" >
+                        <input
+                            type="hidden"
+                            id="category"
+                            placeholder="Category"
+                            value="${this._config["category"]}" />
+
+                        <div class="form-item">
+                            <ha-textfield type="text" id="name" placeholder="Name" style="grid-column: 1 / span 2">
+                            </ha-textfield>
+                        </div>
+                        
+                        <div class="form-item">
+                            <label for="frequency-day">Frequency</label>
+                            <div class="duration-input">
+                                <ha-textfield type="number" inputmode="numeric" no-spinner label="dd" id="frequency-day" value="0"></ha-textfield>
+                                <ha-textfield type="number" inputmode="numeric" no-spinner label="hh" id="frequency-hour" value="0"></ha-textfield>
+                                <ha-textfield type="number" inputmode="numeric" no-spinner label="mm" id="frequency-minute" value="0"></ha-textfield>
+                                <ha-textfield type="number" inputmode="numeric" no-spinner label="ss"id="frequency-second" value="0"></ha-textfield>
+                            </div>
+                        </div>
+
+                        <div class="form-item">
+                            <label for="icon">Icon</label>
+                            <ha-icon-picker type="text" id="icon">
+                            </ha-icon-picker>
+                        </div>
+
+                        <div class="form-item">
+                            <label for="last-completed">Last Completed</label>
+                            <ha-textfield type="datetime-local" id="last-completed" value=${val}>
+                            </ha-textfield>
+                        </div>
+                    </div>
+                    </ha-form>
+                </form>
+                <mwc-button slot="primaryAction" dialogAction="discard" @click=${this._addActivity}>
+                    Add
+                </mwc-button>
+                <mwc-button slot="secondaryAction" dialogAction="cancel">
+                    Cancel
+                </mwc-button>
+            </ha-dialog>
         `;
     }
 
@@ -319,6 +421,56 @@ class DailyActivitiesCard extends LitElement {
         });
     }
 
+    _addActivity() {
+        let name = this.shadowRoot.querySelector("#name");
+        let category = this.shadowRoot.querySelector("#category");
+        let icon = this.shadowRoot.querySelector("#icon");
+        let last_completed = this.shadowRoot.querySelector("#last-completed");
+
+        let frequency = {};
+        frequency.days = utils._getNumber(
+            this.shadowRoot.querySelector("#frequency-day").value,
+            0
+        );
+        frequency.hours = utils._getNumber(
+            this.shadowRoot.querySelector("#frequency-hour").value,
+            0
+        );
+        frequency.minutes = utils._getNumber(
+            this.shadowRoot.querySelector("#frequency-minute").value,
+            0
+        );
+        frequency.seconds = utils._getNumber(
+            this.shadowRoot.querySelector("#frequency-second").value,
+            0
+        );
+
+        this._hass.callService("activity_manager", "add_activity", {
+            name: name.value,
+            category: category.value,
+            frequency: frequency,
+            icon: icon.value,
+            last_completed: last_completed.value,
+        });
+        name.value = "";
+        icon.value = "";
+
+        let manageEl = this.shadowRoot.querySelector(".manage-form");
+        manageEl.close();
+    }
+
+    _switchMode() {
+        switch (this._config.mode) {
+            case "basic":
+                this._config.mode = "manage";
+                break;
+            case "manage":
+                this._config.mode = "basic";
+                break;
+        }
+        this.requestUpdate();
+    }
+
     _removeActivity() {
         if (this._currentItem == null) return;
 
@@ -419,6 +571,66 @@ class DailyActivitiesCard extends LitElement {
             color: white;
         }
 
+        .header {
+            display: grid;
+            grid-template-columns: 52px auto min-content;
+            align-items: center;
+            padding: 12px;
+        }
+        
+        .icon-container {
+            display: flex;
+            height: 40px;
+            width: 40px;
+            border-radius: 50%;
+            background: rgba(111, 111, 111, 0.2);
+            place-content: center;
+            align-items: center;
+            margin-right: 12px;
+        }
+        
+        .info-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .primary {
+            font-weight: bold;
+        }
+        
+        .action-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .am-add-form {
+            padding-top: 10px;
+            display: grid;
+            align-items: center;
+            gap: 24px;
+        }
+        
+        .duration-input {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+        
+        .form-item {
+            display: grid;
+            grid-template-columns: 1fr 1.8fr;
+            align-items: center;
+            --mdc-shape-small: 0px;
+        }
+
+        .form-item input::-webkit-outer-spin-button,
+        .form-item input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
+
         .confirm-grid {
             display: grid;
             gap: 12px;
@@ -473,6 +685,7 @@ class DailyActivitiesCardEditor extends LitElement {
         _config.category = ev.detail.value.category;
         _config.soonHours = ev.detail.value.soonHours;
         _config.showDueOnly = ev.detail.value.showDueOnly;
+        _config.showHeader = ev.detail.value.showHeader;
         _config.icon = ev.detail.value.icon;
         this._config = _config;
 
@@ -503,6 +716,7 @@ class DailyActivitiesCardEditor extends LitElement {
                         },
                     },
                     { name: "icon", selector: { icon: {} } },
+                    { name: "showHeader", selector: { boolean: {} } },
                     { name: "showDueOnly", selector: { boolean: {} } },
                     {
                         name: "soonHours",
@@ -519,6 +733,7 @@ class DailyActivitiesCardEditor extends LitElement {
         var labelMap = {
             category: "Category",
             icon: "Icon",
+            showHeader: "Show header",
             showDueOnly: "Only show activities that are due",
             soonHours: "Soon to be due (styles the activity)",
             mode: "Manage mode",

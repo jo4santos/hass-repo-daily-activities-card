@@ -46,6 +46,7 @@ category: Home
 ```yaml
 type: custom:daily-activities-card
 category: Home
+showHeader: true
 mode: manage
 showDueOnly: true
 soonHours: 24
@@ -56,6 +57,7 @@ soonHours: 24
 | Name | Type | Required | Default | Description |
 |------|------|----------|---------|-------------|
 | `category` | string | No | - | Filter activities to a specific category |
+| `showHeader` | boolean | No | `true` | Show/hide the header with title and action buttons |
 | `mode` | string | No | `basic` | Set to "manage" to enable delete buttons |
 | `showDueOnly` | boolean | No | `false` | Show only activities that are due |
 | `soonHours` | number | No | `24` | Hours threshold for "due soon" styling |
