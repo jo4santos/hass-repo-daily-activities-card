@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.0.6 - ha-icon-picker for icon selection
+// Daily Activities Card v2.0.7 - pt-pt UI, description in items, last completed date in suggestions
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -78,7 +78,7 @@ class DailyActivitiesCard extends LitElement {
         this._config = structuredClone(config);
 
         // Display
-        this._config.header        = config.header        ?? "Activities";
+        this._config.header        = config.header        ?? "Atividades";
         this._config.icon          = config.icon          ?? "mdi:format-list-checkbox";
         this._config.showHeader    = config.showHeader    !== false;
         this._config.compact       = config.compact       ?? false;
@@ -150,13 +150,16 @@ class DailyActivitiesCard extends LitElement {
 
             const todayStr = utils._todayStr();
 
-            // Unique completed names for suggestions (regardless of showCompleted config)
+            // Unique completed tasks for suggestions — deduplicated by name, keep most recent due
             this._completedSuggestions = [
-                ...new Set(
+                ...new Map(
                     raw
                         .filter((item) => item.status === "completed")
-                        .map((item) => item.summary)
-                ),
+                        .map((item) => [
+                            item.summary,
+                            { name: item.summary, due: item.due ?? null },
+                        ])
+                ).values(),
             ];
 
             this._activities = raw
@@ -180,6 +183,7 @@ class DailyActivitiesCard extends LitElement {
                         : null,
                     dueDateStr: item.due ?? null,
                     icon: this._getItemIcon(item),
+                    desc: this._getItemDescription(item),
                 }))
                 .sort((a, b) => {
                     // needs_action before completed
@@ -200,6 +204,16 @@ class DailyActivitiesCard extends LitElement {
             this.requestUpdate();
         }
     };
+
+    _getItemDescription(item) {
+        if (!item.description) return null;
+        if (this._config.iconField === "description") {
+            const parts = item.description.split(this._config.descriptionSeparator);
+            const desc = parts.filter((_, i) => i !== this._config.iconIndex).join(this._config.descriptionSeparator).trim();
+            return desc || null;
+        }
+        return item.description.trim() || null;
+    }
 
     _getItemIcon(item) {
         if (this._config.iconField === "description" && item.description) {
@@ -319,7 +333,7 @@ class DailyActivitiesCard extends LitElement {
         const grid = html`
             <div class="am-grid">
                 ${this._activities.length === 0
-                    ? html`<div class="am-empty">No items to show</div>`
+                    ? html`<div class="am-empty">Sem tarefas para mostrar</div>`
                     : repeat(
                           this._activities,
                           (a) => a.uid ?? a.summary,
@@ -340,6 +354,7 @@ class DailyActivitiesCard extends LitElement {
                                               ? utils._formatTimeAgo(activity.due)
                                               : ""}
                                       </div>
+                                      ${activity.desc ? html`<div class="am-item-desc">${activity.desc}</div>` : ""}
                                   </span>
                                   ${this._renderActionButton(activity)}
                               </div>
@@ -380,12 +395,12 @@ class DailyActivitiesCard extends LitElement {
                 </div>
                 <div class="action-container">
                     <ha-icon-button
-                        .label=${"Add task"}
+                        .label=${"Adicionar tarefa"}
                         @click=${this._openAddDialog}
                     >
                         <ha-icon icon="mdi:plus-circle-outline"></ha-icon>
                     </ha-icon-button>
-                    <ha-icon-button .label=${"Manage"} @click=${this._switchMode}>
+                    <ha-icon-button .label=${"Gerir"} @click=${this._switchMode}>
                         <ha-icon icon="mdi:dots-vertical"></ha-icon>
                     </ha-icon-button>
                 </div>
@@ -398,7 +413,7 @@ class DailyActivitiesCard extends LitElement {
         return html`
             <div class="am-action">
                 <ha-icon-button
-                    .label=${"Remove"}
+                    .label=${"Remover"}
                     @click=${(ev) => this._showRemoveDialog(ev, activity)}
                 >
                     <ha-icon icon="mdi:trash-can-outline"></ha-icon>
@@ -414,20 +429,23 @@ class DailyActivitiesCard extends LitElement {
             <div class="am-popup-backdrop" @click=${this._closeAddDialog}>
                 <div class="am-popup-card" @click=${(ev) => ev.stopPropagation()}>
                     <div class="am-popup-header">
-                        <span class="am-popup-title">Add Task</span>
-                        <ha-icon-button .label=${"Close"} @click=${this._closeAddDialog}>
+                        <span class="am-popup-title">Adicionar Tarefa</span>
+                        <ha-icon-button .label=${"Fechar"} @click=${this._closeAddDialog}>
                             <ha-icon icon="mdi:close"></ha-icon>
                         </ha-icon-button>
                     </div>
                     ${this._completedSuggestions.length > 0 ? html`
                         <div class="am-suggestions">
-                            <div class="am-suggestions-label">Previous tasks</div>
+                            <div class="am-suggestions-label">Tarefas anteriores</div>
                             <div class="am-suggestions-chips">
-                                ${this._completedSuggestions.map((name) => html`
+                                ${this._completedSuggestions.map((s) => html`
                                     <div
                                         class="am-suggestion-chip"
-                                        @click=${() => this._fillSuggestion(name)}
-                                    >${name}</div>
+                                        @click=${() => this._fillSuggestion(s.name)}
+                                    >
+                                        <span class="am-suggestion-name">${s.name}</span>
+                                        ${s.due ? html`<span class="am-suggestion-date">${utils._formatTimeAgo(new Date(s.due + "T12:00:00"))}</span>` : ""}
+                                    </div>
                                 `)}
                             </div>
                         </div>
@@ -436,18 +454,18 @@ class DailyActivitiesCard extends LitElement {
                         <ha-textfield
                             type="text"
                             id="name"
-                            label="Task name"
+                            label="Nome da tarefa"
                             style="width: 100%"
                         ></ha-textfield>
                         <ha-textfield
                             type="date"
                             id="due-date"
-                            label="Due date"
+                            label="Data limite"
                             value="${tomorrowStr}"
                             style="width: 100%"
                         ></ha-textfield>
                         <ha-icon-picker
-                            .label=${"Icon (optional)"}
+                            .label=${"Ícone (opcional)"}
                             .value=${this._addIcon}
                             .hass=${this._hass}
                             @value-changed=${this._iconChanged}
@@ -456,13 +474,13 @@ class DailyActivitiesCard extends LitElement {
                         <ha-textfield
                             type="text"
                             id="description"
-                            label="Description (optional)"
+                            label="Descrição (opcional)"
                             style="width: 100%"
                         ></ha-textfield>
                     </div>
                     <div class="am-popup-footer">
-                        <mwc-button raised @click=${this._addActivity}>Add</mwc-button>
-                        <mwc-button @click=${this._closeAddDialog}>Cancel</mwc-button>
+                        <mwc-button raised @click=${this._addActivity}>Adicionar</mwc-button>
+                        <mwc-button @click=${this._closeAddDialog}>Cancelar</mwc-button>
                     </div>
                 </div>
             </div>
@@ -471,9 +489,9 @@ class DailyActivitiesCard extends LitElement {
 
     _renderRemoveDialog() {
         return html`
-            <ha-dialog class="confirm-remove" heading="Remove task">
+            <ha-dialog class="confirm-remove" heading="Remover tarefa">
                 <div>
-                    Remove
+                    Remover
                     <strong>${this._currentItem?.name ?? ""}</strong>?
                 </div>
                 <mwc-button
@@ -481,10 +499,10 @@ class DailyActivitiesCard extends LitElement {
                     dialogAction="discard"
                     @click=${this._removeActivity}
                 >
-                    Remove
+                    Remover
                 </mwc-button>
                 <mwc-button slot="secondaryAction" dialogAction="cancel">
-                    Cancel
+                    Cancelar
                 </mwc-button>
             </ha-dialog>
         `;
@@ -493,7 +511,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.0.6 */
+        /* Daily Activities Card v2.0.7 */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
@@ -607,6 +625,12 @@ class DailyActivitiesCard extends LitElement {
             margin-top: 2px;
             opacity: 0.8;
         }
+        .am-item-desc {
+            font-size: var(--am-item-secondary-font-size, 12px);
+            margin-top: 2px;
+            opacity: 0.7;
+            font-style: italic;
+        }
         :host ha-card.compact .am-item-secondary,
         :host .compact .am-item-secondary { margin-top: -1px; }
 
@@ -666,6 +690,10 @@ class DailyActivitiesCard extends LitElement {
             cursor: pointer;
             transition: background 0.15s;
             user-select: none;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
         }
         .am-suggestion-chip:hover {
             background: rgba(var(--rgb-primary-text-color, 0,0,0), 0.16);
@@ -673,6 +701,8 @@ class DailyActivitiesCard extends LitElement {
         .am-suggestion-chip:active {
             background: rgba(var(--rgb-primary-text-color, 0,0,0), 0.24);
         }
+        .am-suggestion-name { font-weight: 500; }
+        .am-suggestion-date { font-size: 11px; opacity: 0.6; }
 
         /* ── Bubble card popup ── */
         .am-popup-backdrop {
