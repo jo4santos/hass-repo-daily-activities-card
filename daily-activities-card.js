@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.0.3 - Bubble card style items + popup
+// Daily Activities Card v2.0.4 - Completed task suggestions in add popup
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -47,6 +47,7 @@ export const utils = {
 class DailyActivitiesCard extends LitElement {
     _currentItem = null;
     _activities = [];
+    _completedSuggestions = [];
     _showAddDialog = false;
 
     static getConfigElement() {
@@ -141,6 +142,15 @@ class DailyActivitiesCard extends LitElement {
 
             const todayStr = utils._todayStr();
 
+            // Unique completed names for suggestions (regardless of showCompleted config)
+            this._completedSuggestions = [
+                ...new Set(
+                    raw
+                        .filter((item) => item.status === "completed")
+                        .map((item) => item.summary)
+                ),
+            ];
+
             this._activities = raw
                 .filter((item) => {
                     if (!this._config.showCompleted && item.status === "completed")
@@ -214,6 +224,11 @@ class DailyActivitiesCard extends LitElement {
             item: activity.uid ?? activity.summary,
             status: newStatus,
         });
+    }
+
+    _fillSuggestion(name) {
+        const nameEl = this.shadowRoot.querySelector("#name");
+        if (nameEl) nameEl.value = name;
     }
 
     _openAddDialog() {
@@ -380,6 +395,19 @@ class DailyActivitiesCard extends LitElement {
                             <ha-icon icon="mdi:close"></ha-icon>
                         </ha-icon-button>
                     </div>
+                    ${this._completedSuggestions.length > 0 ? html`
+                        <div class="am-suggestions">
+                            <div class="am-suggestions-label">Previous tasks</div>
+                            <div class="am-suggestions-chips">
+                                ${this._completedSuggestions.map((name) => html`
+                                    <div
+                                        class="am-suggestion-chip"
+                                        @click=${() => this._fillSuggestion(name)}
+                                    >${name}</div>
+                                `)}
+                            </div>
+                        </div>
+                    ` : ""}
                     <div class="am-popup-content">
                         <ha-textfield
                             type="text"
@@ -428,7 +456,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.0.3 */
+        /* Daily Activities Card v2.0.4 */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
@@ -578,6 +606,36 @@ class DailyActivitiesCard extends LitElement {
         .info-container { display: flex; flex-direction: column; justify-content: center; }
         .primary { font-weight: bold; }
         .action-container { display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+        /* ── Suggestions ── */
+        .am-suggestions {
+            margin-bottom: 12px;
+        }
+        .am-suggestions-label {
+            font-size: 12px;
+            opacity: 0.6;
+            margin-bottom: 8px;
+        }
+        .am-suggestions-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .am-suggestion-chip {
+            background: rgba(var(--rgb-primary-text-color, 0,0,0), 0.08);
+            border-radius: 16px;
+            padding: 6px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.15s;
+            user-select: none;
+        }
+        .am-suggestion-chip:hover {
+            background: rgba(var(--rgb-primary-text-color, 0,0,0), 0.16);
+        }
+        .am-suggestion-chip:active {
+            background: rgba(var(--rgb-primary-text-color, 0,0,0), 0.24);
+        }
 
         /* ── Bubble card popup ── */
         .am-popup-backdrop {
