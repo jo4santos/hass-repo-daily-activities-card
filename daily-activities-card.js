@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.0.2 - Use ha-icon-button for reliable icon rendering
+// Daily Activities Card v2.0.3 - Bubble card style items + popup
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -47,6 +47,7 @@ export const utils = {
 class DailyActivitiesCard extends LitElement {
     _currentItem = null;
     _activities = [];
+    _showAddDialog = false;
 
     static getConfigElement() {
         return document.createElement("daily-activities-card-editor");
@@ -215,6 +216,16 @@ class DailyActivitiesCard extends LitElement {
         });
     }
 
+    _openAddDialog() {
+        this._showAddDialog = true;
+        this.requestUpdate();
+    }
+
+    _closeAddDialog() {
+        this._showAddDialog = false;
+        this.requestUpdate();
+    }
+
     _addActivity() {
         const nameEl    = this.shadowRoot.querySelector("#name");
         const dueDateEl = this.shadowRoot.querySelector("#due-date");
@@ -232,7 +243,7 @@ class DailyActivitiesCard extends LitElement {
 
         nameEl.value    = "";
         dueDateEl.value = "";
-        this.shadowRoot.querySelector(".manage-form")?.close();
+        this._closeAddDialog();
     }
 
     _showRemoveDialog(ev, item) {
@@ -331,8 +342,7 @@ class DailyActivitiesCard extends LitElement {
                 <div class="action-container">
                     <ha-icon-button
                         .label=${"Add task"}
-                        @click=${() =>
-                            this.shadowRoot.querySelector(".manage-form").show()}
+                        @click=${this._openAddDialog}
                     >
                         <ha-icon icon="mdi:plus-circle-outline"></ha-icon>
                     </ha-icon-button>
@@ -359,35 +369,38 @@ class DailyActivitiesCard extends LitElement {
     }
 
     _renderAddDialog() {
+        if (!this._showAddDialog) return html``;
         const todayStr = utils._todayStr();
         return html`
-            <ha-dialog class="manage-form" heading="Add Task">
-                <div class="am-add-form">
-                    <ha-textfield
-                        type="text"
-                        id="name"
-                        label="Task name"
-                        style="width: 100%"
-                    ></ha-textfield>
-                    <ha-textfield
-                        type="date"
-                        id="due-date"
-                        label="Due date (optional)"
-                        value="${todayStr}"
-                        style="width: 100%"
-                    ></ha-textfield>
+            <div class="am-popup-backdrop" @click=${this._closeAddDialog}>
+                <div class="am-popup-card" @click=${(ev) => ev.stopPropagation()}>
+                    <div class="am-popup-header">
+                        <span class="am-popup-title">Add Task</span>
+                        <ha-icon-button .label=${"Close"} @click=${this._closeAddDialog}>
+                            <ha-icon icon="mdi:close"></ha-icon>
+                        </ha-icon-button>
+                    </div>
+                    <div class="am-popup-content">
+                        <ha-textfield
+                            type="text"
+                            id="name"
+                            label="Task name"
+                            style="width: 100%"
+                        ></ha-textfield>
+                        <ha-textfield
+                            type="date"
+                            id="due-date"
+                            label="Due date (optional)"
+                            value="${todayStr}"
+                            style="width: 100%"
+                        ></ha-textfield>
+                    </div>
+                    <div class="am-popup-footer">
+                        <mwc-button raised @click=${this._addActivity}>Add</mwc-button>
+                        <mwc-button @click=${this._closeAddDialog}>Cancel</mwc-button>
+                    </div>
                 </div>
-                <mwc-button
-                    slot="primaryAction"
-                    dialogAction="discard"
-                    @click=${this._addActivity}
-                >
-                    Add
-                </mwc-button>
-                <mwc-button slot="secondaryAction" dialogAction="cancel">
-                    Cancel
-                </mwc-button>
-            </ha-dialog>
+            </div>
         `;
     }
 
@@ -415,7 +428,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.0.2 */
+        /* Daily Activities Card v2.0.3 */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
@@ -493,12 +506,14 @@ class DailyActivitiesCard extends LitElement {
         .am-item {
             position: relative;
             display: flex;
-            border-radius: 12px;
+            border-radius: var(--bubble-border-radius, 32px);
             align-items: center;
             padding: var(--am-item-padding, 12px);
             cursor: pointer;
             border: none !important;
+            transition: filter 0.1s ease;
         }
+        .am-item:active { filter: brightness(0.9); }
         .am-icon {
             display: flex;
             align-items: center;
@@ -509,6 +524,7 @@ class DailyActivitiesCard extends LitElement {
             --mdc-icon-size: var(--am-icon-size, 36px);
             min-width: var(--am-icon-container, 48px);
             min-height: var(--am-icon-container, 48px);
+            flex-shrink: 0;
         }
         .am-item-name {
             flex: 1 1 auto;
@@ -563,11 +579,43 @@ class DailyActivitiesCard extends LitElement {
         .primary { font-weight: bold; }
         .action-container { display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
-        /* ── Add form ── */
-        .am-add-form {
-            padding-top: 10px;
+        /* ── Bubble card popup ── */
+        .am-popup-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .am-popup-card {
+            background: var(--ha-card-background, var(--card-background-color, white));
+            border-radius: 28px 28px 0 0;
+            padding: 20px 20px 32px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.3);
+        }
+        .am-popup-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .am-popup-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .am-popup-content {
             display: grid;
-            gap: 16px;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .am-popup-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
         }
 
         /* ── Remove dialog ── */
