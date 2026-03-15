@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.0.9 - Suggestions: only past due dates, fix Home Upkeep rescheduling
+// Daily Activities Card v2.1.0 - Categorized select for suggestions, clear button, Última conclusão
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -57,6 +57,8 @@ class DailyActivitiesCard extends LitElement {
     _showAddDialog = false;
     _showRemoveConfirm = false;
     _addIcon = "";
+    _addName = "";
+    _suggestionsOpen = false;
 
     static getConfigElement() {
         return document.createElement("daily-activities-card-editor");
@@ -263,9 +265,29 @@ class DailyActivitiesCard extends LitElement {
         this._addIcon = ev.detail.value ?? "";
     }
 
-    _fillSuggestion(name) {
-        const nameEl = this.shadowRoot.querySelector("#name");
-        if (nameEl) nameEl.value = name;
+    _nameInput(ev) {
+        this._addName = ev.target.value;
+        this.requestUpdate();
+    }
+
+    _clearName() {
+        this._addName = "";
+        const el = this.shadowRoot.querySelector("#name");
+        if (el) el.value = "";
+        this.requestUpdate();
+    }
+
+    _toggleSuggestions() {
+        this._suggestionsOpen = !this._suggestionsOpen;
+        this.requestUpdate();
+    }
+
+    _selectSuggestion(name) {
+        this._addName = name;
+        this._suggestionsOpen = false;
+        const el = this.shadowRoot.querySelector("#name");
+        if (el) el.value = name;
+        this.requestUpdate();
     }
 
     _openAddDialog() {
@@ -276,6 +298,8 @@ class DailyActivitiesCard extends LitElement {
     _closeAddDialog() {
         this._showAddDialog = false;
         this._addIcon = "";
+        this._addName = "";
+        this._suggestionsOpen = false;
         this.requestUpdate();
     }
 
@@ -448,29 +472,58 @@ class DailyActivitiesCard extends LitElement {
                             <ha-icon icon="mdi:close"></ha-icon>
                         </ha-icon-button>
                     </div>
-                    ${this._completedSuggestions.length > 0 ? html`
-                        <div class="am-suggestions">
-                            <div class="am-suggestions-label">Tarefas anteriores</div>
-                            <div class="am-suggestions-chips">
-                                ${this._completedSuggestions.map((s) => html`
-                                    <div
-                                        class="am-suggestion-chip"
-                                        @click=${() => this._fillSuggestion(s.name)}
-                                    >
-                                        <span class="am-suggestion-name">${s.name}</span>
-                                        ${s.due ? html`<span class="am-suggestion-date">prazo: ${utils._formatTimeAgo(new Date(s.due + "T12:00:00"))}</span>` : ""}
-                                    </div>
-                                `)}
-                            </div>
-                        </div>
-                    ` : ""}
                     <div class="am-popup-content">
-                        <ha-textfield
-                            type="text"
-                            id="name"
-                            label="Nome da tarefa"
-                            style="width: 100%"
-                        ></ha-textfield>
+                        ${this._completedSuggestions.length > 0 ? html`
+                            <div class="am-select-wrapper">
+                                <div class="am-select-trigger" @click=${this._toggleSuggestions}>
+                                    <span>Tarefas anteriores</span>
+                                    <ha-icon icon="${this._suggestionsOpen ? "mdi:chevron-up" : "mdi:chevron-down"}"></ha-icon>
+                                </div>
+                                ${this._suggestionsOpen ? html`
+                                    <div class="am-select-dropdown">
+                                        ${(() => {
+                                            const weekday = new Date().getDay();
+                                            const same  = this._completedSuggestions.filter(s => new Date(s.due + "T12:00:00").getDay() === weekday);
+                                            const other = this._completedSuggestions.filter(s => new Date(s.due + "T12:00:00").getDay() !== weekday);
+                                            return html`
+                                                ${same.length > 0 ? html`
+                                                    <div class="am-select-group">Mesmo dia da semana</div>
+                                                    ${same.map(s => html`
+                                                        <div class="am-select-option" @click=${() => this._selectSuggestion(s.name)}>
+                                                            <span class="am-select-opt-name">${s.name}</span>
+                                                            <span class="am-select-opt-date">Última conclusão: ${utils._formatTimeAgo(new Date(s.due + "T12:00:00"))}</span>
+                                                        </div>
+                                                    `)}
+                                                ` : ""}
+                                                ${other.length > 0 ? html`
+                                                    <div class="am-select-group">Outras anteriores</div>
+                                                    ${other.map(s => html`
+                                                        <div class="am-select-option" @click=${() => this._selectSuggestion(s.name)}>
+                                                            <span class="am-select-opt-name">${s.name}</span>
+                                                            <span class="am-select-opt-date">Última conclusão: ${utils._formatTimeAgo(new Date(s.due + "T12:00:00"))}</span>
+                                                        </div>
+                                                    `)}
+                                                ` : ""}
+                                            `;
+                                        })()}
+                                    </div>
+                                ` : ""}
+                            </div>
+                        ` : ""}
+                        <div class="am-name-wrap">
+                            <ha-textfield
+                                type="text"
+                                id="name"
+                                label="Nome da tarefa"
+                                @input=${this._nameInput}
+                                style="width: 100%"
+                            ></ha-textfield>
+                            ${this._addName ? html`
+                                <ha-icon-button class="am-clear-name" .label=${"Limpar"} @click=${this._clearName}>
+                                    <ha-icon icon="mdi:close-circle"></ha-icon>
+                                </ha-icon-button>
+                            ` : ""}
+                        </div>
                         <ha-textfield
                             type="date"
                             id="due-date"
@@ -527,7 +580,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.0.9 */
+        /* Daily Activities Card v2.1.0 */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
@@ -684,41 +737,72 @@ class DailyActivitiesCard extends LitElement {
         .primary { font-weight: bold; }
         .action-container { display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
-        /* ── Suggestions ── */
-        .am-suggestions {
-            margin-bottom: 12px;
+        /* ── Suggestions select ── */
+        .am-select-wrapper {
+            position: relative;
+            width: 100%;
         }
-        .am-suggestions-label {
-            font-size: 12px;
-            opacity: 0.6;
-            margin-bottom: 8px;
-        }
-        .am-suggestions-chips {
+        .am-select-trigger {
             display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .am-suggestion-chip {
-            background: rgba(var(--rgb-primary-text-color, 0,0,0), 0.08);
-            border-radius: 16px;
-            padding: 6px 14px;
-            font-size: 13px;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border: 1px solid var(--divider-color, rgba(0,0,0,0.2));
+            border-radius: 8px;
             cursor: pointer;
-            transition: background 0.15s;
+            background: var(--input-fill-color, var(--secondary-background-color));
+            font-size: 14px;
             user-select: none;
+        }
+        .am-select-trigger:hover {
+            background: rgba(var(--rgb-primary-text-color, 0,0,0), 0.05);
+        }
+        .am-select-dropdown {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: var(--ha-card-background, var(--card-background-color, white));
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+            z-index: 99;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+        .am-select-group {
+            padding: 8px 16px 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            opacity: 0.5;
+        }
+        .am-select-option {
+            padding: 10px 16px;
+            cursor: pointer;
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
             gap: 2px;
         }
-        .am-suggestion-chip:hover {
-            background: rgba(var(--rgb-primary-text-color, 0,0,0), 0.16);
+        .am-select-option:hover {
+            background: rgba(var(--rgb-primary-text-color, 0,0,0), 0.06);
         }
-        .am-suggestion-chip:active {
-            background: rgba(var(--rgb-primary-text-color, 0,0,0), 0.24);
+        .am-select-opt-name { font-size: 14px; font-weight: 500; }
+        .am-select-opt-date { font-size: 12px; opacity: 0.55; }
+
+        /* ── Name field with clear button ── */
+        .am-name-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
         }
-        .am-suggestion-name { font-weight: 500; }
-        .am-suggestion-date { font-size: 11px; opacity: 0.6; }
+        .am-name-wrap ha-textfield { flex: 1; }
+        .am-clear-name {
+            position: absolute;
+            right: 4px;
+            --mdc-icon-button-size: 32px;
+            --mdc-icon-size: 18px;
+        }
 
         /* ── Bubble card popup ── */
         .am-popup-backdrop {
