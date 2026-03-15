@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.0.0 - Native todo list support
+// Daily Activities Card v2.0.1 - Fix add button missing in hideBackground mode
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -301,6 +301,7 @@ class DailyActivitiesCard extends LitElement {
         if (this._config.hideBackground) {
             return html`
                 <div class="${cardClasses}">
+                    ${this._config.showHeader ? this._renderHeader() : ""}
                     ${grid}
                 </div>
                 ${this._config.showHeader ? this._renderAddDialog() : ""}
@@ -420,7 +421,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.0.0 */
+        /* Daily Activities Card v2.0.1 */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
