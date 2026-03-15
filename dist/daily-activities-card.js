@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.1.0 - Categorized select for suggestions, clear button, Última conclusão
+// Daily Activities Card v2.1.1 - Show all completed in suggestions regardless of due date
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -153,20 +153,17 @@ class DailyActivitiesCard extends LitElement {
 
             const todayStr = utils._todayStr();
 
-            // Unique completed tasks for suggestions — only past due dates (Home Upkeep
-            // reschedules the due date forward when completing, so future due = not yet done)
+            // Unique completed tasks for suggestions — all completed items, deduped by name.
+            // Home Upkeep reschedules due date to next occurrence when completing, so we
+            // include all completed regardless of due date, but only use due for display/
+            // weekday-grouping when it's a past date.
             this._completedSuggestions = [
                 ...new Map(
                     raw
-                        .filter(
-                            (item) =>
-                                item.status === "completed" &&
-                                item.due &&
-                                item.due <= todayStr
-                        )
+                        .filter((item) => item.status === "completed")
                         .map((item) => [
                             item.summary,
-                            { name: item.summary, due: item.due },
+                            { name: item.summary, due: item.due ?? null },
                         ])
                 ).values(),
             ];
@@ -482,27 +479,26 @@ class DailyActivitiesCard extends LitElement {
                                 ${this._suggestionsOpen ? html`
                                     <div class="am-select-dropdown">
                                         ${(() => {
-                                            const weekday = new Date().getDay();
-                                            const same  = this._completedSuggestions.filter(s => new Date(s.due + "T12:00:00").getDay() === weekday);
-                                            const other = this._completedSuggestions.filter(s => new Date(s.due + "T12:00:00").getDay() !== weekday);
+                                            const todayStr = utils._todayStr();
+                                            const weekday  = new Date().getDay();
+                                            // Only use due for grouping/date if it's a past date
+                                            const isPast = (s) => s.due && s.due <= todayStr;
+                                            const same  = this._completedSuggestions.filter(s => isPast(s) && new Date(s.due + "T12:00:00").getDay() === weekday);
+                                            const other = this._completedSuggestions.filter(s => !isPast(s) || new Date(s.due + "T12:00:00").getDay() !== weekday);
+                                            const optHtml = (s) => html`
+                                                <div class="am-select-option" @click=${() => this._selectSuggestion(s.name)}>
+                                                    <span class="am-select-opt-name">${s.name}</span>
+                                                    ${isPast(s) ? html`<span class="am-select-opt-date">Última conclusão: ${utils._formatTimeAgo(new Date(s.due + "T12:00:00"))}</span>` : ""}
+                                                </div>
+                                            `;
                                             return html`
                                                 ${same.length > 0 ? html`
                                                     <div class="am-select-group">Mesmo dia da semana</div>
-                                                    ${same.map(s => html`
-                                                        <div class="am-select-option" @click=${() => this._selectSuggestion(s.name)}>
-                                                            <span class="am-select-opt-name">${s.name}</span>
-                                                            <span class="am-select-opt-date">Última conclusão: ${utils._formatTimeAgo(new Date(s.due + "T12:00:00"))}</span>
-                                                        </div>
-                                                    `)}
+                                                    ${same.map(optHtml)}
                                                 ` : ""}
                                                 ${other.length > 0 ? html`
                                                     <div class="am-select-group">Outras anteriores</div>
-                                                    ${other.map(s => html`
-                                                        <div class="am-select-option" @click=${() => this._selectSuggestion(s.name)}>
-                                                            <span class="am-select-opt-name">${s.name}</span>
-                                                            <span class="am-select-opt-date">Última conclusão: ${utils._formatTimeAgo(new Date(s.due + "T12:00:00"))}</span>
-                                                        </div>
-                                                    `)}
+                                                    ${other.map(optHtml)}
                                                 ` : ""}
                                             `;
                                         })()}
@@ -580,7 +576,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.1.0 */
+        /* Daily Activities Card v2.1.1 */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
