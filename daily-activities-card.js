@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.0.1 - Fix add button missing in hideBackground mode
+// Daily Activities Card v2.0.2 - Use ha-icon-button for reliable icon rendering
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -329,21 +329,16 @@ class DailyActivitiesCard extends LitElement {
                     <div class="primary">${this._config.header}</div>
                 </div>
                 <div class="action-container">
-                    <mwc-icon-button
+                    <ha-icon-button
+                        .label=${"Add task"}
                         @click=${() =>
                             this.shadowRoot.querySelector(".manage-form").show()}
                     >
-                        <!-- Add task icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <path d="M14.3 21.7C13.6 21.9 12.8 22 12 22C6.5 22 2 17.5 2 12S6.5 2 12 2C13.3 2 14.6 2.3 15.8 2.7L14.2 4.3C13.5 4.1 12.8 4 12 4C7.6 4 4 7.6 4 12S7.6 20 12 20C12.4 20 12.9 20 13.3 19.9C13.5 20.6 13.9 21.2 14.3 21.7M7.9 10.1L6.5 11.5L11 16L21 6L19.6 4.6L11 13.2L7.9 10.1M18 14V17H15V19H18V22H20V19H23V17H20V14H18Z"/>
-                        </svg>
-                    </mwc-icon-button>
-                    <mwc-icon-button @click=${this._switchMode}>
-                        <!-- More options icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <path d="M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z"/>
-                        </svg>
-                    </mwc-icon-button>
+                        <ha-icon icon="mdi:plus-circle-outline"></ha-icon>
+                    </ha-icon-button>
+                    <ha-icon-button .label=${"Manage"} @click=${this._switchMode}>
+                        <ha-icon icon="mdi:dots-vertical"></ha-icon>
+                    </ha-icon-button>
                 </div>
             </div>
         `;
@@ -353,13 +348,12 @@ class DailyActivitiesCard extends LitElement {
         if (this._config.mode !== "manage") return html``;
         return html`
             <div class="am-action">
-                <mwc-icon-button
+                <ha-icon-button
+                    .label=${"Remove"}
                     @click=${(ev) => this._showRemoveDialog(ev, activity)}
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
-                    </svg>
-                </mwc-icon-button>
+                    <ha-icon icon="mdi:trash-can-outline"></ha-icon>
+                </ha-icon-button>
             </div>
         `;
     }
@@ -421,7 +415,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.0.1 */
+        /* Daily Activities Card v2.0.2 */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
