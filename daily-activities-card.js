@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.0.7 - pt-pt UI, description in items, last completed date in suggestions
+// Daily Activities Card v2.0.8 - Fix remove dialog (custom overlay like add dialog)
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -55,6 +55,7 @@ class DailyActivitiesCard extends LitElement {
     _activities = [];
     _completedSuggestions = [];
     _showAddDialog = false;
+    _showRemoveConfirm = false;
     _addIcon = "";
 
     static getConfigElement() {
@@ -302,8 +303,14 @@ class DailyActivitiesCard extends LitElement {
     _showRemoveDialog(ev, item) {
         ev.stopPropagation();
         this._currentItem = item;
+        this._showRemoveConfirm = true;
         this.requestUpdate();
-        this.shadowRoot.querySelector(".confirm-remove").show();
+    }
+
+    _closeRemoveDialog() {
+        this._showRemoveConfirm = false;
+        this._currentItem = null;
+        this.requestUpdate();
     }
 
     _removeActivity() {
@@ -312,6 +319,7 @@ class DailyActivitiesCard extends LitElement {
             entity_id: this._config.entity,
             item: this._currentItem.uid ?? this._currentItem.summary,
         });
+        this._closeRemoveDialog();
     }
 
     _switchMode() {
@@ -488,30 +496,32 @@ class DailyActivitiesCard extends LitElement {
     }
 
     _renderRemoveDialog() {
+        if (!this._showRemoveConfirm) return html``;
         return html`
-            <ha-dialog class="confirm-remove" heading="Remover tarefa">
-                <div>
-                    Remover
-                    <strong>${this._currentItem?.name ?? ""}</strong>?
+            <div class="am-popup-backdrop" @click=${this._closeRemoveDialog}>
+                <div class="am-popup-card" @click=${(ev) => ev.stopPropagation()}>
+                    <div class="am-popup-header">
+                        <span class="am-popup-title">Remover tarefa</span>
+                        <ha-icon-button .label=${"Fechar"} @click=${this._closeRemoveDialog}>
+                            <ha-icon icon="mdi:close"></ha-icon>
+                        </ha-icon-button>
+                    </div>
+                    <div style="padding: 8px 0 20px;">
+                        Remover <strong>${this._currentItem?.name ?? ""}</strong>?
+                    </div>
+                    <div class="am-popup-footer">
+                        <mwc-button raised @click=${this._removeActivity}>Remover</mwc-button>
+                        <mwc-button @click=${this._closeRemoveDialog}>Cancelar</mwc-button>
+                    </div>
                 </div>
-                <mwc-button
-                    slot="primaryAction"
-                    dialogAction="discard"
-                    @click=${this._removeActivity}
-                >
-                    Remover
-                </mwc-button>
-                <mwc-button slot="secondaryAction" dialogAction="cancel">
-                    Cancelar
-                </mwc-button>
-            </ha-dialog>
+            </div>
         `;
     }
 
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.0.7 */
+        /* Daily Activities Card v2.0.8 */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
