@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.0.8 - Fix remove dialog (custom overlay like add dialog)
+// Daily Activities Card v2.0.9 - Suggestions: only past due dates, fix Home Upkeep rescheduling
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -151,14 +151,20 @@ class DailyActivitiesCard extends LitElement {
 
             const todayStr = utils._todayStr();
 
-            // Unique completed tasks for suggestions — deduplicated by name, keep most recent due
+            // Unique completed tasks for suggestions — only past due dates (Home Upkeep
+            // reschedules the due date forward when completing, so future due = not yet done)
             this._completedSuggestions = [
                 ...new Map(
                     raw
-                        .filter((item) => item.status === "completed")
+                        .filter(
+                            (item) =>
+                                item.status === "completed" &&
+                                item.due &&
+                                item.due <= todayStr
+                        )
                         .map((item) => [
                             item.summary,
-                            { name: item.summary, due: item.due ?? null },
+                            { name: item.summary, due: item.due },
                         ])
                 ).values(),
             ];
@@ -452,7 +458,7 @@ class DailyActivitiesCard extends LitElement {
                                         @click=${() => this._fillSuggestion(s.name)}
                                     >
                                         <span class="am-suggestion-name">${s.name}</span>
-                                        ${s.due ? html`<span class="am-suggestion-date">${utils._formatTimeAgo(new Date(s.due + "T12:00:00"))}</span>` : ""}
+                                        ${s.due ? html`<span class="am-suggestion-date">prazo: ${utils._formatTimeAgo(new Date(s.due + "T12:00:00"))}</span>` : ""}
                                     </div>
                                 `)}
                             </div>
@@ -521,7 +527,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.0.8 */
+        /* Daily Activities Card v2.0.9 */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
