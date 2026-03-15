@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.0.4 - Completed task suggestions in add popup
+// Daily Activities Card v2.0.5 - Tomorrow default, icon/description fields, state-based icons
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -40,6 +40,12 @@ export const utils = {
 
     _todayStr: () => {
         const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    },
+
+    _tomorrowStr: () => {
+        const d = new Date();
+        d.setDate(d.getDate() + 1);
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
     },
 };
@@ -85,10 +91,11 @@ class DailyActivitiesCard extends LitElement {
         // iconField: 'none' | 'description'
         // When 'description', parses the description field using descriptionSeparator
         // and takes the part at iconIndex as the mdi icon
-        this._config.iconField            = config.iconField            ?? "none";
+        this._config.iconField            = config.iconField            ?? "description";
         this._config.descriptionSeparator = config.descriptionSeparator ?? "|";
         this._config.iconIndex            = config.iconIndex            ?? 0;
-        this._config.defaultItemIcon      = config.defaultItemIcon      ?? "mdi:check-circle-outline";
+        // null = use state-based default icons (X / warning / check)
+        this._config.defaultItemIcon      = config.defaultItemIcon      ?? null;
 
         // Interaction
         this._config.mode = config.mode ?? "basic";
@@ -200,7 +207,11 @@ class DailyActivitiesCard extends LitElement {
             const part  = parts[idx]?.trim();
             if (part) return part;
         }
-        return this._config.defaultItemIcon;
+        if (this._config.defaultItemIcon) return this._config.defaultItemIcon;
+        // State-based defaults
+        if (item.status === "completed")                       return "mdi:check-circle";
+        if (item.due && item.due === utils._todayStr())        return "mdi:alert-circle";
+        return "mdi:close-circle";
     }
 
     _getActivityState(activity) {
@@ -244,6 +255,8 @@ class DailyActivitiesCard extends LitElement {
     _addActivity() {
         const nameEl    = this.shadowRoot.querySelector("#name");
         const dueDateEl = this.shadowRoot.querySelector("#due-date");
+        const iconEl    = this.shadowRoot.querySelector("#icon");
+        const descEl    = this.shadowRoot.querySelector("#description");
 
         const name = nameEl?.value?.trim();
         if (!name) return;
@@ -254,10 +267,16 @@ class DailyActivitiesCard extends LitElement {
         };
         if (dueDateEl?.value) serviceData.due_date = dueDateEl.value;
 
-        this._hass.callService("todo", "add_item", serviceData);
+        const iconVal = iconEl?.value?.trim();
+        const descVal = descEl?.value?.trim();
+        if (iconVal || descVal) {
+            const sep = this._config.descriptionSeparator;
+            serviceData.description = iconVal
+                ? (descVal ? `${iconVal}${sep}${descVal}` : iconVal)
+                : descVal;
+        }
 
-        nameEl.value    = "";
-        dueDateEl.value = "";
+        this._hass.callService("todo", "add_item", serviceData);
         this._closeAddDialog();
     }
 
@@ -385,7 +404,7 @@ class DailyActivitiesCard extends LitElement {
 
     _renderAddDialog() {
         if (!this._showAddDialog) return html``;
-        const todayStr = utils._todayStr();
+        const tomorrowStr = utils._tomorrowStr();
         return html`
             <div class="am-popup-backdrop" @click=${this._closeAddDialog}>
                 <div class="am-popup-card" @click=${(ev) => ev.stopPropagation()}>
@@ -418,8 +437,20 @@ class DailyActivitiesCard extends LitElement {
                         <ha-textfield
                             type="date"
                             id="due-date"
-                            label="Due date (optional)"
-                            value="${todayStr}"
+                            label="Due date"
+                            value="${tomorrowStr}"
+                            style="width: 100%"
+                        ></ha-textfield>
+                        <ha-textfield
+                            type="text"
+                            id="icon"
+                            label="Icon (e.g. mdi:home)"
+                            style="width: 100%"
+                        ></ha-textfield>
+                        <ha-textfield
+                            type="text"
+                            id="description"
+                            label="Description (optional)"
                             style="width: 100%"
                         ></ha-textfield>
                     </div>
@@ -456,7 +487,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.0.4 */
+        /* Daily Activities Card v2.0.5 */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
