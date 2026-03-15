@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.0.5 - Tomorrow default, icon/description fields, state-based icons
+// Daily Activities Card v2.0.6 - ha-icon-picker for icon selection
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -55,6 +55,7 @@ class DailyActivitiesCard extends LitElement {
     _activities = [];
     _completedSuggestions = [];
     _showAddDialog = false;
+    _addIcon = "";
 
     static getConfigElement() {
         return document.createElement("daily-activities-card-editor");
@@ -237,6 +238,10 @@ class DailyActivitiesCard extends LitElement {
         });
     }
 
+    _iconChanged(ev) {
+        this._addIcon = ev.detail.value ?? "";
+    }
+
     _fillSuggestion(name) {
         const nameEl = this.shadowRoot.querySelector("#name");
         if (nameEl) nameEl.value = name;
@@ -249,13 +254,13 @@ class DailyActivitiesCard extends LitElement {
 
     _closeAddDialog() {
         this._showAddDialog = false;
+        this._addIcon = "";
         this.requestUpdate();
     }
 
     _addActivity() {
         const nameEl    = this.shadowRoot.querySelector("#name");
         const dueDateEl = this.shadowRoot.querySelector("#due-date");
-        const iconEl    = this.shadowRoot.querySelector("#icon");
         const descEl    = this.shadowRoot.querySelector("#description");
 
         const name = nameEl?.value?.trim();
@@ -267,7 +272,7 @@ class DailyActivitiesCard extends LitElement {
         };
         if (dueDateEl?.value) serviceData.due_date = dueDateEl.value;
 
-        const iconVal = iconEl?.value?.trim();
+        const iconVal = this._addIcon?.trim();
         const descVal = descEl?.value?.trim();
         if (iconVal || descVal) {
             const sep = this._config.descriptionSeparator;
@@ -441,12 +446,13 @@ class DailyActivitiesCard extends LitElement {
                             value="${tomorrowStr}"
                             style="width: 100%"
                         ></ha-textfield>
-                        <ha-textfield
-                            type="text"
-                            id="icon"
-                            label="Icon (e.g. mdi:home)"
+                        <ha-icon-picker
+                            .label=${"Icon (optional)"}
+                            .value=${this._addIcon}
+                            .hass=${this._hass}
+                            @value-changed=${this._iconChanged}
                             style="width: 100%"
-                        ></ha-textfield>
+                        ></ha-icon-picker>
                         <ha-textfield
                             type="text"
                             id="description"
@@ -487,7 +493,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.0.5 */
+        /* Daily Activities Card v2.0.6 */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
