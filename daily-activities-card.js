@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.2.1 - Completed tasks only show for today in non-filtered view
+// Daily Activities Card v2.2.2 - Separator |||, icon at end, always-on display filter
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -97,8 +97,8 @@ class DailyActivitiesCard extends LitElement {
         // When 'description', parses the description field using descriptionSeparator
         // and takes the part at iconIndex as the mdi icon
         this._config.iconField            = config.iconField            ?? "description";
-        this._config.descriptionSeparator = config.descriptionSeparator ?? "|";
-        this._config.iconIndex            = config.iconIndex            ?? 0;
+        this._config.descriptionSeparator = config.descriptionSeparator ?? "|||";
+        this._config.iconIndex            = config.iconIndex            ?? 1; // icon is the last part
         // null = use state-based default icons (X / warning / check)
         this._config.defaultItemIcon      = config.defaultItemIcon      ?? null;
 
@@ -410,18 +410,20 @@ class DailyActivitiesCard extends LitElement {
         const todayStr = utils._todayStr();
         const displayActivities = this._filterDate
             ? this._activities.filter((a) => {
-                if (a.status === "completed")
-                    return a.dueDateStr === this._filterDate;
-                return !a.dueDateStr || a.dueDateStr === this._filterDate;
+                // Manage mode: filter by selected date
+                // 1. Incomplete with no due → always show
+                if (!a.dueDateStr) return a.status === "needs_action";
+                // 2. Tasks (pending/completed) with due = filter date
+                return a.dueDateStr === this._filterDate;
             })
             : this._activities.filter((a) => {
-                if (this._config.showDueOnly && a.dueDateStr) {
-                    // Pending: show if due today or overdue
-                    // Completed: show only if due is today (not yesterday's recurring tasks)
-                    if (a.status === "completed") return a.dueDateStr === todayStr;
-                    return a.dueDateStr <= todayStr;
-                }
-                return true;
+                // Normal mode: show today's relevant tasks
+                // 1. Incomplete with no due → always show
+                if (!a.dueDateStr) return a.status === "needs_action";
+                // 2. Completed → only if due = today
+                if (a.status === "completed") return a.dueDateStr === todayStr;
+                // 3. Pending → due today or overdue
+                return a.dueDateStr <= todayStr;
             });
 
         const grid = html`
@@ -658,7 +660,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.2.1 */
+        /* Daily Activities Card v2.2.2 */
         :host {
             --am-item-primary-font-size: 15px;
             --am-item-secondary-font-size: 13px;
