@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.1.3 - Today as default filter date, divider, prominent popup buttons
+// Daily Activities Card v2.1.4 - Always show no-due-date tasks when date filter active
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -375,7 +375,7 @@ class DailyActivitiesCard extends LitElement {
             .join(" ");
 
         const displayActivities = this._filterDate
-            ? this._activities.filter((a) => a.dueDateStr === this._filterDate)
+            ? this._activities.filter((a) => !a.dueDateStr || a.dueDateStr === this._filterDate)
             : this._activities;
 
         const grid = html`
@@ -606,7 +606,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.1.3 */
+        /* Daily Activities Card v2.1.4 */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
