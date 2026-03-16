@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.1.5 - Day navigation arrows, human-friendly date, more task spacing
+// Daily Activities Card v2.1.5 - More task spacing
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -357,40 +357,6 @@ class DailyActivitiesCard extends LitElement {
         this._closeRemoveDialog();
     }
 
-    _prevDay() {
-        const d = new Date((this._filterDate ?? utils._todayStr()) + "T12:00:00");
-        d.setDate(d.getDate() - 1);
-        this._filterDate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-        this.requestUpdate();
-    }
-
-    _nextDay() {
-        const d = new Date((this._filterDate ?? utils._todayStr()) + "T12:00:00");
-        d.setDate(d.getDate() + 1);
-        this._filterDate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-        this.requestUpdate();
-    }
-
-    _formatFilterDate() {
-        const WEEKDAYS_PT = ["Domingo","2ª feira","3ª feira","4ª feira","5ª feira","6ª feira","Sábado"];
-        const MONTHS_PT   = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
-        if (!this._filterDate) return "Todos os dias";
-        const todayStr = utils._todayStr();
-        const todayD = new Date(todayStr + "T12:00:00");
-        const tomD = new Date(todayStr + "T12:00:00");
-        tomD.setDate(tomD.getDate() + 1);
-        const tomStr = `${tomD.getFullYear()}-${String(tomD.getMonth()+1).padStart(2,'0')}-${String(tomD.getDate()).padStart(2,'0')}`;
-        const yestD = new Date(todayStr + "T12:00:00");
-        yestD.setDate(yestD.getDate() - 1);
-        const yestStr = `${yestD.getFullYear()}-${String(yestD.getMonth()+1).padStart(2,'0')}-${String(yestD.getDate()).padStart(2,'0')}`;
-        const d = new Date(this._filterDate + "T12:00:00");
-        const weekday = WEEKDAYS_PT[d.getDay()];
-        if (this._filterDate === todayStr)  return `Hoje — ${weekday}`;
-        if (this._filterDate === tomStr)    return `Amanhã — ${weekday}`;
-        if (this._filterDate === yestStr)   return `Ontem — ${weekday}`;
-        return `${weekday}, ${d.getDate()} ${MONTHS_PT[d.getMonth()]}`;
-    }
-
     _switchMode() {
         this._config.mode =
             this._config.mode === "manage" ? "basic" : "manage";
@@ -415,25 +381,18 @@ class DailyActivitiesCard extends LitElement {
         const grid = html`
             ${this._config.mode === "manage" ? html`
                 <div class="am-date-bar">
-                    <ha-icon-button .label=${"Dia anterior"} @click=${this._prevDay}>
-                        <ha-icon icon="mdi:chevron-left"></ha-icon>
-                    </ha-icon-button>
-                    <div class="am-date-label" @click=${() => {
-                        const el = this.shadowRoot.querySelector("#date-picker");
-                        if (el) { try { el.showPicker(); } catch { el.click(); } }
-                    }}>
-                        <span>${this._formatFilterDate()}</span>
-                        <input
-                            type="date"
-                            id="date-picker"
-                            class="am-date-picker-hidden"
-                            .value=${this._filterDate ?? ""}
-                            @change=${(e) => { this._filterDate = e.target.value || utils._todayStr(); this.requestUpdate(); }}
-                        />
-                    </div>
-                    <ha-icon-button .label=${"Próximo dia"} @click=${this._nextDay}>
-                        <ha-icon icon="mdi:chevron-right"></ha-icon>
-                    </ha-icon-button>
+                    <ha-textfield
+                        type="date"
+                        .value=${this._filterDate ?? ""}
+                        label="Filtrar por data"
+                        @change=${(e) => { this._filterDate = e.target.value || null; this.requestUpdate(); }}
+                        style="flex: 1"
+                    ></ha-textfield>
+                    ${this._filterDate ? html`
+                        <ha-icon-button .label=${"Limpar filtro"} @click=${() => { this._filterDate = null; this.requestUpdate(); }}>
+                            <ha-icon icon="mdi:close"></ha-icon>
+                        </ha-icon-button>
+                    ` : ""}
                 </div>
                 <hr class="am-divider">
             ` : ""}
@@ -647,7 +606,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.1.5 */
+        /* Daily Activities Card v2.1.5 - more task spacing */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
@@ -862,31 +821,7 @@ class DailyActivitiesCard extends LitElement {
             display: flex;
             align-items: center;
             padding: 4px 8px 0;
-            gap: 0;
-        }
-        .am-date-label {
-            flex: 1;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 14px;
-            user-select: none;
-            text-align: center;
-        }
-        .am-date-label:hover {
-            background: rgba(var(--rgb-primary-text-color, 0,0,0), 0.06);
-        }
-        .am-date-picker-hidden {
-            position: absolute;
-            opacity: 0;
-            pointer-events: none;
-            width: 1px;
-            height: 1px;
+            gap: 4px;
         }
         .am-divider {
             border: none;
