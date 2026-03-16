@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.1.5 - More task spacing
+// Daily Activities Card v2.1.5 - More task spacing, show completed with matching due when filtering
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -176,8 +176,9 @@ class DailyActivitiesCard extends LitElement {
                 .filter((item) => {
                     if (!this._config.showCompleted && item.status === "completed")
                         return false;
-                    // showDueOnly: hide future items that have a due date
-                    if (this._config.showDueOnly && item.due)
+                    // showDueOnly: hide future pending items (don't filter completed — they may
+                    // be needed when filtering by date, e.g. Home Upkeep reschedules due on completion)
+                    if (this._config.showDueOnly && item.due && item.status === "needs_action")
                         return item.due <= todayStr;
                     return true;
                 })
