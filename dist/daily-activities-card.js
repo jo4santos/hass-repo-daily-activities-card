@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.1.7 - Human-friendly date label, smaller task icons
+// Daily Activities Card v2.1.8 - Fix label, icon size, text size, remove date clear button
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -366,10 +366,9 @@ class DailyActivitiesCard extends LitElement {
         const tomStr = `${tomD.getFullYear()}-${String(tomD.getMonth()+1).padStart(2,'0')}-${String(tomD.getDate()).padStart(2,'0')}`;
         const d = new Date(this._filterDate + "T12:00:00");
         const weekday = WEEKDAYS_PT[d.getDay()];
-        const dayMonth = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
         if (this._filterDate === todayStr) return `Hoje, ${weekday}`;
         if (this._filterDate === tomStr)   return `Amanhã, ${weekday}`;
-        return `${dayMonth}, ${weekday}`;
+        return weekday;
     }
 
     _prevDay() {
@@ -425,11 +424,6 @@ class DailyActivitiesCard extends LitElement {
                                 @change=${(e) => { this._filterDate = e.target.value || null; this.requestUpdate(); }}
                                 style="flex: 1"
                             ></ha-textfield>
-                            ${this._filterDate ? html`
-                                <ha-icon-button .label=${"Limpar filtro"} @click=${() => { this._filterDate = null; this.requestUpdate(); }}>
-                                    <ha-icon icon="mdi:close"></ha-icon>
-                                </ha-icon-button>
-                            ` : ""}
                         </div>
                     </div>
                     <ha-icon-button .label=${"Próximo dia"} @click=${this._nextDay}>
@@ -648,9 +642,9 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.1.7 */
+        /* Daily Activities Card v2.1.8 */
         :host {
-            --am-item-primary-font-size: 22px;
+            --am-item-primary-font-size: 15px;
             --am-item-secondary-font-size: 13px;
             --mdc-theme-primary: var(--primary-text-color);
         }
@@ -703,9 +697,9 @@ class DailyActivitiesCard extends LitElement {
             --am-content-padding: 8px;
             --am-grid-gap: 8px;
             --am-item-padding: 10px 12px;
-            --am-icon-size: 20px;
-            --am-icon-container: 32px;
-            --am-icon-padding: 4px;
+            --am-icon-size: 24px;
+            --am-icon-container: 38px;
+            --am-icon-padding: 5px;
             --am-icon-margin: 12px;
             --am-header-padding: 12px;
         }
