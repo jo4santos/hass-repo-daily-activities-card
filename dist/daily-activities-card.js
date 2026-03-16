@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.2.8 - Same weekday tasks first in autocomplete
+// Daily Activities Card v2.2.9 - Use ha-combo-box for previous tasks selector
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -59,6 +59,7 @@ class DailyActivitiesCard extends LitElement {
     _addIcon = "";
     _addName = "";
     _suggestionsOpen = false;
+    _comboValue = "";
     _filterDate = null;
 
     static getConfigElement() {
@@ -310,6 +311,7 @@ class DailyActivitiesCard extends LitElement {
         this._showAddDialog = false;
         this._addIcon = "";
         this._addName = "";
+        this._comboValue = "";
         this._suggestionsOpen = false;
         this.requestUpdate();
     }
@@ -559,14 +561,44 @@ class DailyActivitiesCard extends LitElement {
                         </ha-icon-button>
                     </div>
                     <div class="am-popup-content">
+                        ${(() => {
+                            if (!this._completedSuggestions.length) return "";
+                            const todayStr = utils._todayStr();
+                            const todayWeekday = new Date().getDay();
+                            const sameWeekday = (s) => s.due && s.due <= todayStr
+                                && new Date(s.due + "T12:00:00").getDay() === todayWeekday;
+                            const items = [...this._completedSuggestions]
+                                .sort((a, b) => sameWeekday(b) - sameWeekday(a))
+                                .map(s => ({ value: s.name, label: s.name }));
+                            return html`
+                                <ha-combo-box
+                                    .label=${"Tarefas anteriores"}
+                                    .items=${items}
+                                    .filteredItems=${items}
+                                    .value=${this._comboValue}
+                                    @filter-changed=${(e) => {
+                                        const f = e.detail.value.toLowerCase();
+                                        e.target.filteredItems = f
+                                            ? items.filter(i => i.label.toLowerCase().includes(f))
+                                            : items;
+                                    }}
+                                    @value-changed=${(e) => {
+                                        if (e.detail.value) {
+                                            this._selectSuggestion(e.detail.value);
+                                            this._comboValue = "";
+                                            this.requestUpdate();
+                                        }
+                                    }}
+                                    style="width: 100%"
+                                ></ha-combo-box>
+                            `;
+                        })()}
                         <div class="am-name-wrap">
                             <ha-textfield
                                 type="text"
                                 id="name"
                                 label="Nome da tarefa"
                                 @input=${this._nameInput}
-                                @focus=${() => { this._suggestionsOpen = true; this.requestUpdate(); }}
-                                @blur=${() => setTimeout(() => { this._suggestionsOpen = false; this.requestUpdate(); }, 150)}
                                 style="width: 100%"
                             ></ha-textfield>
                             ${this._addName ? html`
@@ -574,28 +606,6 @@ class DailyActivitiesCard extends LitElement {
                                     <ha-icon icon="mdi:close-circle"></ha-icon>
                                 </ha-icon-button>
                             ` : ""}
-                            ${(() => {
-                                if (!this._suggestionsOpen || !this._completedSuggestions.length) return "";
-                                const q = this._addName.toLowerCase();
-                                const todayStr = utils._todayStr();
-                                const todayWeekday = new Date().getDay();
-                                const sameWeekday = (s) => s.due && s.due <= todayStr
-                                    && new Date(s.due + "T12:00:00").getDay() === todayWeekday;
-                                const filtered = this._completedSuggestions
-                                    .filter(s => !q || s.name.toLowerCase().includes(q))
-                                    .sort((a, b) => sameWeekday(b) - sameWeekday(a))
-                                    .slice(0, 10);
-                                if (!filtered.length) return "";
-                                return html`
-                                    <div class="am-select-dropdown">
-                                        ${filtered.map(s => html`
-                                            <div class="am-select-option" @click=${() => this._selectSuggestion(s.name)}>
-                                                <span class="am-select-opt-name">${s.name}</span>
-                                            </div>
-                                        `)}
-                                    </div>
-                                `;
-                            })()}
                         </div>
                         <ha-textfield
                             type="date"
@@ -810,30 +820,6 @@ class DailyActivitiesCard extends LitElement {
         .primary { font-weight: bold; }
         .action-container { display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
-        /* ── Suggestions autocomplete ── */
-        .am-select-dropdown {
-            position: absolute;
-            top: calc(100% + 4px);
-            left: 0;
-            right: 0;
-            background: var(--ha-card-background, var(--card-background-color, white));
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-            z-index: 99;
-            max-height: 220px;
-            overflow-y: auto;
-        }
-        .am-select-option {
-            padding: 10px 16px;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-        .am-select-option:hover {
-            background: rgba(var(--rgb-primary-text-color, 0,0,0), 0.06);
-        }
-        .am-select-opt-name { font-size: 14px; font-weight: 500; }
 
         /* ── Date filter bar (manage mode) ── */
         .am-date-bar {
