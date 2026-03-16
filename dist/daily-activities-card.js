@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.2.0 - Fix _filterDate not initialized on load when mode:manage
+// Daily Activities Card v2.2.1 - Completed tasks only show for today in non-filtered view
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -415,10 +415,12 @@ class DailyActivitiesCard extends LitElement {
                 return !a.dueDateStr || a.dueDateStr === this._filterDate;
             })
             : this._activities.filter((a) => {
-                // Without date filter, apply showDueOnly to all items (incl. completed)
-                // so rescheduled Home Upkeep tasks with future due don't leak through
-                if (this._config.showDueOnly && a.dueDateStr)
+                if (this._config.showDueOnly && a.dueDateStr) {
+                    // Pending: show if due today or overdue
+                    // Completed: show only if due is today (not yesterday's recurring tasks)
+                    if (a.status === "completed") return a.dueDateStr === todayStr;
                     return a.dueDateStr <= todayStr;
+                }
                 return true;
             });
 
@@ -656,7 +658,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.2.0 */
+        /* Daily Activities Card v2.2.1 */
         :host {
             --am-item-primary-font-size: 15px;
             --am-item-secondary-font-size: 13px;
