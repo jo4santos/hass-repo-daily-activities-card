@@ -208,6 +208,7 @@ class DailyActivitiesCard extends LitElement {
                     return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
                 });
 
+            console.debug("[daily-activities-card] activities:", this._activities.map(a => `${a.name} | ${a.status} | due:${a.dueDateStr}`));
             this.requestUpdate();
         } catch (e) {
             console.error("daily-activities-card: error fetching todo items", e);
