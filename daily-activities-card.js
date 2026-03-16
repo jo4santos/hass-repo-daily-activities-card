@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.1.2 - Hide timestamps, fix mdi: in description, date filter in manage mode
+// Daily Activities Card v2.1.3 - Today as default filter date, divider, prominent popup buttons
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -360,7 +360,7 @@ class DailyActivitiesCard extends LitElement {
     _switchMode() {
         this._config.mode =
             this._config.mode === "manage" ? "basic" : "manage";
-        if (this._config.mode !== "manage") this._filterDate = null;
+        this._filterDate = this._config.mode === "manage" ? utils._todayStr() : null;
         this.requestUpdate();
     }
 
@@ -394,6 +394,7 @@ class DailyActivitiesCard extends LitElement {
                         </ha-icon-button>
                     ` : ""}
                 </div>
+                <hr class="am-divider">
             ` : ""}
             <div class="am-grid">
                 ${displayActivities.length === 0
@@ -571,8 +572,8 @@ class DailyActivitiesCard extends LitElement {
                         ></ha-textfield>
                     </div>
                     <div class="am-popup-footer">
-                        <mwc-button raised @click=${this._addActivity}>Adicionar</mwc-button>
-                        <mwc-button @click=${this._closeAddDialog}>Cancelar</mwc-button>
+                        <button class="am-btn am-btn-primary" @click=${this._addActivity}>Adicionar</button>
+                        <button class="am-btn am-btn-secondary" @click=${this._closeAddDialog}>Cancelar</button>
                     </div>
                 </div>
             </div>
@@ -594,8 +595,8 @@ class DailyActivitiesCard extends LitElement {
                         Remover <strong>${this._currentItem?.name ?? ""}</strong>?
                     </div>
                     <div class="am-popup-footer">
-                        <mwc-button raised @click=${this._removeActivity}>Remover</mwc-button>
-                        <mwc-button @click=${this._closeRemoveDialog}>Cancelar</mwc-button>
+                        <button class="am-btn am-btn-danger" @click=${this._removeActivity}>Remover</button>
+                        <button class="am-btn am-btn-secondary" @click=${this._closeRemoveDialog}>Cancelar</button>
                     </div>
                 </div>
             </div>
@@ -605,7 +606,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.1.2 */
+        /* Daily Activities Card v2.1.3 */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
@@ -822,6 +823,11 @@ class DailyActivitiesCard extends LitElement {
             padding: 4px 8px 0;
             gap: 4px;
         }
+        .am-divider {
+            border: none;
+            border-top: 1px solid var(--divider-color, rgba(0,0,0,0.12));
+            margin: 8px 8px 0;
+        }
 
         /* ── Name field with clear button ── */
         .am-name-wrap {
@@ -872,8 +878,33 @@ class DailyActivitiesCard extends LitElement {
         }
         .am-popup-footer {
             display: flex;
-            justify-content: flex-end;
-            gap: 8px;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .am-btn {
+            width: 100%;
+            padding: 14px 24px;
+            border-radius: 28px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: filter 0.15s;
+            letter-spacing: 0.3px;
+            font-family: inherit;
+        }
+        .am-btn:active { filter: brightness(0.88); }
+        .am-btn-primary {
+            background: var(--primary-color, #03a9f4);
+            color: var(--text-primary-color, white);
+        }
+        .am-btn-danger {
+            background: var(--error-color, #db4437);
+            color: white;
+        }
+        .am-btn-secondary {
+            background: rgba(var(--rgb-primary-text-color, 0,0,0), 0.07);
+            color: var(--primary-text-color);
         }
 
         /* ── Remove dialog ── */
