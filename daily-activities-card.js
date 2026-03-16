@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.1.9 - Fix completed tasks leaking into wrong date filter
+// Daily Activities Card v2.2.0 - Fix _filterDate not initialized on load when mode:manage
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -107,6 +107,9 @@ class DailyActivitiesCard extends LitElement {
 
         // Interaction
         this._config.mode = config.mode ?? "basic";
+        // Initialize filter date when starting in manage mode (e.g. mode set in YAML)
+        if (this._config.mode === "manage" && this._filterDate == null)
+            this._filterDate = utils._todayStr();
 
         this._runOnce = false;
         this._fetchData();
@@ -208,7 +211,6 @@ class DailyActivitiesCard extends LitElement {
                     return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
                 });
 
-            console.debug("[daily-activities-card] activities:", this._activities.map(a => `${a.name} | ${a.status} | due:${a.dueDateStr}`));
             this.requestUpdate();
         } catch (e) {
             console.error("daily-activities-card: error fetching todo items", e);
@@ -405,15 +407,20 @@ class DailyActivitiesCard extends LitElement {
             .filter((c) => c)
             .join(" ");
 
+        const todayStr = utils._todayStr();
         const displayActivities = this._filterDate
             ? this._activities.filter((a) => {
                 if (a.status === "completed")
-                    // Completed tasks only appear if due matches exactly
                     return a.dueDateStr === this._filterDate;
-                // Pending: no due date (always relevant) or due matches
                 return !a.dueDateStr || a.dueDateStr === this._filterDate;
             })
-            : this._activities;
+            : this._activities.filter((a) => {
+                // Without date filter, apply showDueOnly to all items (incl. completed)
+                // so rescheduled Home Upkeep tasks with future due don't leak through
+                if (this._config.showDueOnly && a.dueDateStr)
+                    return a.dueDateStr <= todayStr;
+                return true;
+            });
 
         const grid = html`
             ${this._config.mode === "manage" ? html`
@@ -649,7 +656,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.1.9 */
+        /* Daily Activities Card v2.2.0 */
         :host {
             --am-item-primary-font-size: 15px;
             --am-item-secondary-font-size: 13px;
