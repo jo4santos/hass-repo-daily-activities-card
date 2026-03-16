@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.2.7 - Autocomplete for previous tasks; remove groups and last-completed date
+// Daily Activities Card v2.2.8 - Same weekday tasks first in autocomplete
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -577,8 +577,13 @@ class DailyActivitiesCard extends LitElement {
                             ${(() => {
                                 if (!this._suggestionsOpen || !this._completedSuggestions.length) return "";
                                 const q = this._addName.toLowerCase();
+                                const todayStr = utils._todayStr();
+                                const todayWeekday = new Date().getDay();
+                                const sameWeekday = (s) => s.due && s.due <= todayStr
+                                    && new Date(s.due + "T12:00:00").getDay() === todayWeekday;
                                 const filtered = this._completedSuggestions
                                     .filter(s => !q || s.name.toLowerCase().includes(q))
+                                    .sort((a, b) => sameWeekday(b) - sameWeekday(a))
                                     .slice(0, 10);
                                 if (!filtered.length) return "";
                                 return html`
