@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.2.2 - Separator |||, icon at end, always-on display filter
+// Daily Activities Card v2.2.3 - Always show overdue incomplete tasks
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -413,7 +413,9 @@ class DailyActivitiesCard extends LitElement {
                 // Manage mode: filter by selected date
                 // 1. Incomplete with no due → always show
                 if (!a.dueDateStr) return a.status === "needs_action";
-                // 2. Tasks (pending/completed) with due = filter date
+                // 2. Overdue incomplete → always show
+                if (a.status === "needs_action" && a.dueDateStr < todayStr) return true;
+                // 3. Tasks (pending/completed) with due = filter date
                 return a.dueDateStr === this._filterDate;
             })
             : this._activities.filter((a) => {
