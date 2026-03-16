@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.3.0 - Custom searchable dropdown for previous tasks
+// Daily Activities Card v2.3.1 - Styled trigger button for previous tasks
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -576,7 +576,10 @@ class DailyActivitiesCard extends LitElement {
                             return html`
                                 <div class="am-select-wrapper">
                                     <div class="am-select-trigger" @click=${this._toggleSuggestions}>
-                                        <span>Tarefas anteriores</span>
+                                        <span class="am-select-trigger-label">
+                                            <ha-icon icon="mdi:history"></ha-icon>
+                                            Tarefas anteriores
+                                        </span>
                                         <ha-icon icon="${this._suggestionsOpen ? "mdi:chevron-up" : "mdi:chevron-down"}"></ha-icon>
                                     </div>
                                     ${this._suggestionsOpen ? html`
@@ -864,13 +867,18 @@ class DailyActivitiesCard extends LitElement {
         .am-select-wrapper { position: relative; width: 100%; }
         .am-select-trigger {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 16px;
-            border: 1px solid var(--divider-color, rgba(0,0,0,0.2));
-            border-radius: 8px; cursor: pointer;
-            background: var(--input-fill-color, var(--secondary-background-color));
-            font-size: 14px; user-select: none;
+            padding: 10px 14px 10px 16px;
+            border: 2px solid var(--primary-color, #03a9f4);
+            border-radius: 32px; cursor: pointer;
+            background: rgba(var(--rgb-primary-color, 3, 169, 244), 0.10);
+            color: var(--primary-color, #03a9f4);
+            font-size: 14px; font-weight: 600; user-select: none;
+            transition: background 0.15s;
         }
-        .am-select-trigger:hover { background: rgba(var(--rgb-primary-text-color,0,0,0), 0.05); }
+        .am-select-trigger:hover { background: rgba(var(--rgb-primary-color, 3, 169, 244), 0.18); }
+        .am-select-trigger:active { filter: brightness(0.9); }
+        .am-select-trigger ha-icon { --mdc-icon-size: 18px; }
+        .am-select-trigger-label { display: flex; align-items: center; gap: 8px; }
         .am-select-dropdown {
             position: absolute; top: calc(100% + 4px); left: 0; right: 0;
             background: var(--ha-card-background, var(--card-background-color, white));
