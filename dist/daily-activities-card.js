@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.2.5 - Re-fetch data when switching to manage mode
+// Daily Activities Card v2.2.6 - Two states by default (green/red); splitPending config for yellow
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -91,6 +91,7 @@ class DailyActivitiesCard extends LitElement {
         // Filtering
         this._config.showDueOnly   = config.showDueOnly   ?? false;
         this._config.showCompleted = config.showCompleted ?? true;
+        this._config.splitPending  = config.splitPending  ?? false;
 
         // Item icons
         // iconField: 'none' | 'description'
@@ -250,13 +251,13 @@ class DailyActivitiesCard extends LitElement {
 
     _getActivityState(activity) {
         if (activity.status === "completed") return "am-done";
-        // Overdue or due today → red; future → yellow
-        if (activity.dueDateStr) {
+        // splitPending: show yellow for due-today, red for overdue/no-due/future
+        if (this._config.splitPending && activity.dueDateStr) {
             const todayStr = utils._todayStr();
             if (activity.dueDateStr < todayStr)  return "am-overdue";
             if (activity.dueDateStr === todayStr) return "am-soon";
         }
-        return "am-overdue"; // needs_action with no due = red
+        return "am-overdue"; // default: all incomplete = red
     }
 
     // ─── Actions ─────────────────────────────────────────────────────────────
@@ -1033,6 +1034,7 @@ class DailyActivitiesCardEditor extends LitElement {
                     { name: "hideBackground", selector: { boolean: {} } },
                     { name: "showDueOnly",    selector: { boolean: {} } },
                     { name: "showCompleted",  selector: { boolean: {} } },
+                    { name: "splitPending",   selector: { boolean: {} } },
                     { name: "defaultItemIcon", selector: { icon: {} } },
                     {
                         name: "iconField",
@@ -1068,6 +1070,7 @@ class DailyActivitiesCardEditor extends LitElement {
             hideBackground:       "Hide card background",
             showDueOnly:          "Show only due / overdue items",
             showCompleted:        "Show completed items",
+            splitPending:         "Split incomplete: yellow for due-today, red for overdue",
             defaultItemIcon:      "Default item icon",
             iconField:            "Icon source",
             descriptionSeparator: "Description separator",
