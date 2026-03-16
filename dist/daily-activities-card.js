@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.1.8 - Fix label, icon size, text size, remove date clear button
+// Daily Activities Card v2.1.9 - Fix completed tasks leaking into wrong date filter
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -405,7 +405,13 @@ class DailyActivitiesCard extends LitElement {
             .join(" ");
 
         const displayActivities = this._filterDate
-            ? this._activities.filter((a) => !a.dueDateStr || a.dueDateStr === this._filterDate)
+            ? this._activities.filter((a) => {
+                if (a.status === "completed")
+                    // Completed tasks only appear if due matches exactly
+                    return a.dueDateStr === this._filterDate;
+                // Pending: no due date (always relevant) or due matches
+                return !a.dueDateStr || a.dueDateStr === this._filterDate;
+            })
             : this._activities;
 
         const grid = html`
@@ -642,7 +648,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.1.8 */
+        /* Daily Activities Card v2.1.9 */
         :host {
             --am-item-primary-font-size: 15px;
             --am-item-secondary-font-size: 13px;
