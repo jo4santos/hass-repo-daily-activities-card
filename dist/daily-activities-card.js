@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.1.6 - Day nav arrows, fix spacing (only divider margin), normal task size
+// Daily Activities Card v2.1.7 - Human-friendly date label, smaller task icons
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -358,6 +358,20 @@ class DailyActivitiesCard extends LitElement {
         this._closeRemoveDialog();
     }
 
+    _formatFilterDate() {
+        if (!this._filterDate) return "";
+        const WEEKDAYS_PT = ["Domingo","2ª feira","3ª feira","4ª feira","5ª feira","6ª feira","Sábado"];
+        const todayStr = utils._todayStr();
+        const tomD = new Date(todayStr + "T12:00:00"); tomD.setDate(tomD.getDate() + 1);
+        const tomStr = `${tomD.getFullYear()}-${String(tomD.getMonth()+1).padStart(2,'0')}-${String(tomD.getDate()).padStart(2,'0')}`;
+        const d = new Date(this._filterDate + "T12:00:00");
+        const weekday = WEEKDAYS_PT[d.getDay()];
+        const dayMonth = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+        if (this._filterDate === todayStr) return `Hoje, ${weekday}`;
+        if (this._filterDate === tomStr)   return `Amanhã, ${weekday}`;
+        return `${dayMonth}, ${weekday}`;
+    }
+
     _prevDay() {
         const base = this._filterDate ?? utils._todayStr();
         const d = new Date(base + "T12:00:00");
@@ -401,18 +415,23 @@ class DailyActivitiesCard extends LitElement {
                     <ha-icon-button .label=${"Dia anterior"} @click=${this._prevDay}>
                         <ha-icon icon="mdi:chevron-left"></ha-icon>
                     </ha-icon-button>
-                    <ha-textfield
-                        type="date"
-                        .value=${this._filterDate ?? ""}
-                        label="Filtrar por data"
-                        @change=${(e) => { this._filterDate = e.target.value || null; this.requestUpdate(); }}
-                        style="flex: 1"
-                    ></ha-textfield>
-                    ${this._filterDate ? html`
-                        <ha-icon-button .label=${"Limpar filtro"} @click=${() => { this._filterDate = null; this.requestUpdate(); }}>
-                            <ha-icon icon="mdi:close"></ha-icon>
-                        </ha-icon-button>
-                    ` : ""}
+                    <div class="am-date-center">
+                        ${this._filterDate ? html`<div class="am-date-friendly">${this._formatFilterDate()}</div>` : ""}
+                        <div class="am-date-input-row">
+                            <ha-textfield
+                                type="date"
+                                .value=${this._filterDate ?? ""}
+                                label="Filtrar por data"
+                                @change=${(e) => { this._filterDate = e.target.value || null; this.requestUpdate(); }}
+                                style="flex: 1"
+                            ></ha-textfield>
+                            ${this._filterDate ? html`
+                                <ha-icon-button .label=${"Limpar filtro"} @click=${() => { this._filterDate = null; this.requestUpdate(); }}>
+                                    <ha-icon icon="mdi:close"></ha-icon>
+                                </ha-icon-button>
+                            ` : ""}
+                        </div>
+                    </div>
                     <ha-icon-button .label=${"Próximo dia"} @click=${this._nextDay}>
                         <ha-icon icon="mdi:chevron-right"></ha-icon>
                     </ha-icon-button>
@@ -629,7 +648,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.1.6 */
+        /* Daily Activities Card v2.1.7 */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
@@ -683,11 +702,11 @@ class DailyActivitiesCard extends LitElement {
         :host div:not(.compact) {
             --am-content-padding: 8px;
             --am-grid-gap: 8px;
-            --am-item-padding: 12px;
-            --am-icon-size: 36px;
-            --am-icon-container: 48px;
-            --am-icon-padding: 6px;
-            --am-icon-margin: 14px;
+            --am-item-padding: 10px 12px;
+            --am-icon-size: 20px;
+            --am-icon-container: 32px;
+            --am-icon-padding: 4px;
+            --am-icon-margin: 12px;
             --am-header-padding: 12px;
         }
 
@@ -844,7 +863,23 @@ class DailyActivitiesCard extends LitElement {
             display: flex;
             align-items: center;
             padding: 4px 8px 0;
-            gap: 4px;
+            gap: 0;
+        }
+        .am-date-center {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .am-date-friendly {
+            font-size: 13px;
+            font-weight: 600;
+            opacity: 0.8;
+            padding-left: 4px;
+        }
+        .am-date-input-row {
+            display: flex;
+            align-items: center;
         }
         .am-divider {
             border: none;
