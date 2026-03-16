@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.1.1 - Show all completed in suggestions regardless of due date
+// Daily Activities Card v2.1.2 - Hide timestamps, fix mdi: in description, date filter in manage mode
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -59,6 +59,7 @@ class DailyActivitiesCard extends LitElement {
     _addIcon = "";
     _addName = "";
     _suggestionsOpen = false;
+    _filterDate = null;
 
     static getConfigElement() {
         return document.createElement("daily-activities-card-editor");
@@ -100,6 +101,9 @@ class DailyActivitiesCard extends LitElement {
         this._config.iconIndex            = config.iconIndex            ?? 0;
         // null = use state-based default icons (X / warning / check)
         this._config.defaultItemIcon      = config.defaultItemIcon      ?? null;
+
+        // Display options
+        this._config.showTimestamps = config.showTimestamps !== false;
 
         // Interaction
         this._config.mode = config.mode ?? "basic";
@@ -213,9 +217,13 @@ class DailyActivitiesCard extends LitElement {
 
     _getItemDescription(item) {
         if (!item.description) return null;
-        if (this._config.iconField === "description") {
-            const parts = item.description.split(this._config.descriptionSeparator);
-            const desc = parts.filter((_, i) => i !== this._config.iconIndex).join(this._config.descriptionSeparator).trim();
+        const sep   = this._config.descriptionSeparator;
+        const idx   = this._config.iconIndex;
+        const parts = item.description.split(sep);
+        const iconPart = parts[idx]?.trim() ?? "";
+        // Strip the icon part whenever it looks like an MDI icon or iconField is "description"
+        if (iconPart.startsWith("mdi:") || this._config.iconField === "description") {
+            const desc = parts.filter((_, i) => i !== idx).join(sep).trim();
             return desc || null;
         }
         return item.description.trim() || null;
@@ -352,6 +360,7 @@ class DailyActivitiesCard extends LitElement {
     _switchMode() {
         this._config.mode =
             this._config.mode === "manage" ? "basic" : "manage";
+        if (this._config.mode !== "manage") this._filterDate = null;
         this.requestUpdate();
     }
 
@@ -365,12 +374,32 @@ class DailyActivitiesCard extends LitElement {
             .filter((c) => c)
             .join(" ");
 
+        const displayActivities = this._filterDate
+            ? this._activities.filter((a) => a.dueDateStr === this._filterDate)
+            : this._activities;
+
         const grid = html`
+            ${this._config.mode === "manage" ? html`
+                <div class="am-date-bar">
+                    <ha-textfield
+                        type="date"
+                        .value=${this._filterDate ?? ""}
+                        label="Filtrar por data"
+                        @change=${(e) => { this._filterDate = e.target.value || null; this.requestUpdate(); }}
+                        style="flex: 1"
+                    ></ha-textfield>
+                    ${this._filterDate ? html`
+                        <ha-icon-button .label=${"Limpar filtro"} @click=${() => { this._filterDate = null; this.requestUpdate(); }}>
+                            <ha-icon icon="mdi:close"></ha-icon>
+                        </ha-icon-button>
+                    ` : ""}
+                </div>
+            ` : ""}
             <div class="am-grid">
-                ${this._activities.length === 0
+                ${displayActivities.length === 0
                     ? html`<div class="am-empty">Sem tarefas para mostrar</div>`
                     : repeat(
-                          this._activities,
+                          displayActivities,
                           (a) => a.uid ?? a.summary,
                           (activity) => html`
                               <div
@@ -384,11 +413,11 @@ class DailyActivitiesCard extends LitElement {
                                       <div class="am-item-primary">
                                           ${activity.name}
                                       </div>
-                                      <div class="am-item-secondary">
-                                          ${activity.due
-                                              ? utils._formatTimeAgo(activity.due)
-                                              : ""}
-                                      </div>
+                                      ${this._config.showTimestamps ? html`
+                                          <div class="am-item-secondary">
+                                              ${activity.due ? utils._formatTimeAgo(activity.due) : ""}
+                                          </div>
+                                      ` : ""}
                                       ${activity.desc ? html`<div class="am-item-desc">${activity.desc}</div>` : ""}
                                   </span>
                                   ${this._renderActionButton(activity)}
@@ -459,7 +488,7 @@ class DailyActivitiesCard extends LitElement {
 
     _renderAddDialog() {
         if (!this._showAddDialog) return html``;
-        const tomorrowStr = utils._tomorrowStr();
+        const defaultDate = this._filterDate ?? utils._tomorrowStr();
         return html`
             <div class="am-popup-backdrop" @click=${this._closeAddDialog}>
                 <div class="am-popup-card" @click=${(ev) => ev.stopPropagation()}>
@@ -524,7 +553,7 @@ class DailyActivitiesCard extends LitElement {
                             type="date"
                             id="due-date"
                             label="Data limite"
-                            value="${tomorrowStr}"
+                            value="${defaultDate}"
                             style="width: 100%"
                         ></ha-textfield>
                         <ha-icon-picker
@@ -576,7 +605,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.1.1 */
+        /* Daily Activities Card v2.1.2 */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
@@ -786,6 +815,14 @@ class DailyActivitiesCard extends LitElement {
         .am-select-opt-name { font-size: 14px; font-weight: 500; }
         .am-select-opt-date { font-size: 12px; opacity: 0.55; }
 
+        /* ── Date filter bar (manage mode) ── */
+        .am-date-bar {
+            display: flex;
+            align-items: center;
+            padding: 4px 8px 0;
+            gap: 4px;
+        }
+
         /* ── Name field with clear button ── */
         .am-name-wrap {
             position: relative;
@@ -885,8 +922,9 @@ class DailyActivitiesCardEditor extends LitElement {
                     },
                     { name: "header",     selector: { text: {} } },
                     { name: "icon",       selector: { icon: {} } },
-                    { name: "showHeader", selector: { boolean: {} } },
-                    { name: "compact",    selector: { boolean: {} } },
+                    { name: "showHeader",     selector: { boolean: {} } },
+                    { name: "showTimestamps", selector: { boolean: {} } },
+                    { name: "compact",        selector: { boolean: {} } },
                     { name: "hideBackground", selector: { boolean: {} } },
                     { name: "showDueOnly",    selector: { boolean: {} } },
                     { name: "showCompleted",  selector: { boolean: {} } },
@@ -920,6 +958,7 @@ class DailyActivitiesCardEditor extends LitElement {
             header:               "Card header",
             icon:                 "Card icon",
             showHeader:           "Show header",
+            showTimestamps:       "Show timestamps",
             compact:              "Compact mode",
             hideBackground:       "Hide card background",
             showDueOnly:          "Show only due / overdue items",
