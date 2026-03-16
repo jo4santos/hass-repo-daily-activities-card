@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.2.4 - showDueOnly doesn't filter in manage mode
+// Daily Activities Card v2.2.5 - Re-fetch data when switching to manage mode
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -395,7 +395,8 @@ class DailyActivitiesCard extends LitElement {
         this._config.mode =
             this._config.mode === "manage" ? "basic" : "manage";
         this._filterDate = this._config.mode === "manage" ? utils._todayStr() : null;
-        this.requestUpdate();
+        // Re-fetch so showDueOnly bypass (manage mode) takes effect immediately
+        this._fetchData();
     }
 
     // ─── Render ──────────────────────────────────────────────────────────────
