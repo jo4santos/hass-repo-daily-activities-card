@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.2.3 - Always show overdue incomplete tasks
+// Daily Activities Card v2.2.4 - showDueOnly doesn't filter in manage mode
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -181,7 +181,8 @@ class DailyActivitiesCard extends LitElement {
                         return false;
                     // showDueOnly: hide future pending items (don't filter completed — they may
                     // be needed when filtering by date, e.g. Home Upkeep reschedules due on completion)
-                    if (this._config.showDueOnly && item.due && item.status === "needs_action")
+                    // In manage mode (_filterDate set), skip this filter — user browses all dates
+                    if (this._config.showDueOnly && item.due && item.status === "needs_action" && !this._filterDate)
                         return item.due <= todayStr;
                     return true;
                 })
