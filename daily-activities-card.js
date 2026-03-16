@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.1.5 - More task spacing, show completed with matching due when filtering
+// Daily Activities Card v2.1.6 - Day nav arrows, fix spacing (only divider margin), normal task size
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -358,6 +358,22 @@ class DailyActivitiesCard extends LitElement {
         this._closeRemoveDialog();
     }
 
+    _prevDay() {
+        const base = this._filterDate ?? utils._todayStr();
+        const d = new Date(base + "T12:00:00");
+        d.setDate(d.getDate() - 1);
+        this._filterDate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        this.requestUpdate();
+    }
+
+    _nextDay() {
+        const base = this._filterDate ?? utils._todayStr();
+        const d = new Date(base + "T12:00:00");
+        d.setDate(d.getDate() + 1);
+        this._filterDate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        this.requestUpdate();
+    }
+
     _switchMode() {
         this._config.mode =
             this._config.mode === "manage" ? "basic" : "manage";
@@ -382,6 +398,9 @@ class DailyActivitiesCard extends LitElement {
         const grid = html`
             ${this._config.mode === "manage" ? html`
                 <div class="am-date-bar">
+                    <ha-icon-button .label=${"Dia anterior"} @click=${this._prevDay}>
+                        <ha-icon icon="mdi:chevron-left"></ha-icon>
+                    </ha-icon-button>
                     <ha-textfield
                         type="date"
                         .value=${this._filterDate ?? ""}
@@ -394,6 +413,9 @@ class DailyActivitiesCard extends LitElement {
                             <ha-icon icon="mdi:close"></ha-icon>
                         </ha-icon-button>
                     ` : ""}
+                    <ha-icon-button .label=${"Próximo dia"} @click=${this._nextDay}>
+                        <ha-icon icon="mdi:chevron-right"></ha-icon>
+                    </ha-icon-button>
                 </div>
                 <hr class="am-divider">
             ` : ""}
@@ -607,7 +629,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.1.5 - more task spacing */
+        /* Daily Activities Card v2.1.6 */
         :host {
             --am-item-primary-font-size: 22px;
             --am-item-secondary-font-size: 13px;
@@ -660,8 +682,8 @@ class DailyActivitiesCard extends LitElement {
         :host ha-card:not(.compact),
         :host div:not(.compact) {
             --am-content-padding: 8px;
-            --am-grid-gap: 12px;
-            --am-item-padding: 16px;
+            --am-grid-gap: 8px;
+            --am-item-padding: 12px;
             --am-icon-size: 36px;
             --am-icon-container: 48px;
             --am-icon-padding: 6px;
@@ -827,7 +849,7 @@ class DailyActivitiesCard extends LitElement {
         .am-divider {
             border: none;
             border-top: 1px solid var(--divider-color, rgba(0,0,0,0.12));
-            margin: 8px 8px 0;
+            margin: 8px 8px 12px;
         }
 
         /* ── Name field with clear button ── */
