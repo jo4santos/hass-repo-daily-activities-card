@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.3.1 - Styled trigger button for previous tasks
+// Daily Activities Card v2.4.0 - Softer colours, desc+timestamp on same line, fixed icon size
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -477,12 +477,14 @@ class DailyActivitiesCard extends LitElement {
                                       <div class="am-item-primary">
                                           ${activity.name}
                                       </div>
-                                      ${this._config.showTimestamps ? html`
+                                      ${(this._config.showTimestamps && activity.due) || activity.desc ? html`
                                           <div class="am-item-secondary">
-                                              ${activity.due ? utils._formatTimeAgo(activity.due) : ""}
+                                              ${[
+                                                  activity.desc || "",
+                                                  (this._config.showTimestamps && activity.due) ? utils._formatTimeAgo(activity.due) : "",
+                                              ].filter(Boolean).join(" | ")}
                                           </div>
                                       ` : ""}
-                                      ${activity.desc ? html`<div class="am-item-desc">${activity.desc}</div>` : ""}
                                   </span>
                                   ${this._renderActionButton(activity)}
                               </div>
@@ -676,7 +678,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.2.2 */
+        /* Daily Activities Card v2.4.0 */
         :host {
             --am-item-primary-font-size: 15px;
             --am-item-secondary-font-size: 13px;
@@ -769,7 +771,7 @@ class DailyActivitiesCard extends LitElement {
             border-radius: 50%;
             padding: var(--am-icon-padding, 6px);
             margin-right: var(--am-icon-margin, 14px);
-            --mdc-icon-size: var(--am-icon-size, 36px);
+            --mdc-icon-size: 24px;
             min-width: var(--am-icon-container, 48px);
             min-height: var(--am-icon-container, 48px);
             flex-shrink: 0;
@@ -790,12 +792,6 @@ class DailyActivitiesCard extends LitElement {
             margin-top: 2px;
             opacity: 0.8;
         }
-        .am-item-desc {
-            font-size: var(--am-item-secondary-font-size, 12px);
-            margin-top: 2px;
-            opacity: 0.7;
-            font-style: italic;
-        }
         :host ha-card.compact .am-item-secondary,
         :host .compact .am-item-secondary { margin-top: -1px; }
 
@@ -806,14 +802,14 @@ class DailyActivitiesCard extends LitElement {
         }
 
         /* ── State colours ── */
-        .am-done { background-color: #c8e6c9; color: #1b5e20; }
-        .am-done .am-icon { background-color: #2e7d32; color: white; }
+        .am-done { background-color: rgba(46, 125, 50, 0.25); color: rgb(46, 125, 50); }
+        .am-done .am-icon { background-color: transparent; color: rgb(46, 125, 50); }
 
         .am-soon { background-color: #fff8e1; color: #e65100; }
         .am-soon .am-icon { background-color: #ff9800; color: white; }
 
-        .am-overdue { background-color: #ffebee; color: #b71c1c; }
-        .am-overdue .am-icon { background-color: #d32f2f; color: white; }
+        .am-overdue { background-color: rgba(211, 47, 47, 0.25); color: rgb(211, 47, 47); }
+        .am-overdue .am-icon { background-color: transparent; color: rgb(211, 47, 47); }
 
         /* ── Header ── */
         .header {
