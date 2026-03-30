@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.4.4 - Bubble Card styling variables
+// Daily Activities Card v2.4.5 - Neutral background, only icon+text coloured
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -678,7 +678,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.4.4 */
+        /* Daily Activities Card v2.4.5 */
         :host {
             --am-item-primary-font-size: 15px;
             --am-item-secondary-font-size: 13px;
@@ -811,13 +811,13 @@ class DailyActivitiesCard extends LitElement {
         }
 
         /* ── State colours ── */
-        .am-done { background-color: color-mix(in srgb, var(--success-color, #4caf50) 15%, transparent); color: var(--success-color, #4caf50); }
+        .am-done { color: var(--success-color, #4caf50); }
         .am-done .am-icon { background-color: var(--success-color, #4caf50); color: white; }
 
-        .am-soon { background-color: #fff8e1; color: #e65100; }
+        .am-soon { color: #e65100; }
         .am-soon .am-icon { background-color: #ff9800; color: white; }
 
-        .am-overdue { background-color: color-mix(in srgb, var(--error-color, #f44336) 15%, transparent); color: var(--error-color, #f44336); }
+        .am-overdue { color: var(--error-color, #f44336); }
         .am-overdue .am-icon { background-color: var(--error-color, #f44336); color: white; }
 
         /* ── Header ── */
