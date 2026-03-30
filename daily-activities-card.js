@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.5.2 - Hover via ::after overlay, preserves base background
+// Daily Activities Card v2.5.3 - Large coloured icon, no background
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -678,7 +678,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.5.2 */
+        /* Daily Activities Card v2.5.3 */
         :host {
             --am-item-primary-font-size: 15px;
             --am-item-secondary-font-size: 13px;
@@ -725,10 +725,8 @@ class DailyActivitiesCard extends LitElement {
         .compact .am-soon .am-icon,
         .compact .am-overdue .am-icon {
             width: 22px !important; height: 22px !important;
-            min-width: 22px !important; min-height: 22px !important;
-            padding: 2px !important; margin-right: 6px !important;
-            --mdc-icon-size: 18px !important;
-            line-height: 18px !important;
+            margin-right: 6px !important;
+            --mdc-icon-size: 22px !important;
         }
         .compact .am-item-name { line-height: 1.0 !important; }
 
@@ -786,15 +784,11 @@ class DailyActivitiesCard extends LitElement {
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
-            padding: var(--am-icon-padding, 6px);
             margin-right: var(--am-icon-margin, 14px);
-            --mdc-icon-size: 24px;
-            min-width: var(--am-icon-container, 48px);
-            min-height: var(--am-icon-container, 48px);
+            --mdc-icon-size: var(--am-icon-container, 38px);
+            width: var(--am-icon-container, 38px);
+            height: var(--am-icon-container, 38px);
             flex-shrink: 0;
-            background-color: var(--bubble-icon-background-color, rgba(var(--rgb-primary-text-color, 0, 0, 0), 0.1));
-            color: var(--primary-text-color);
         }
         .am-item-name {
             flex: 1 1 auto;
@@ -823,13 +817,8 @@ class DailyActivitiesCard extends LitElement {
 
         /* ── State colours ── */
         .am-done { color: var(--success-color, #4caf50); }
-        .am-done .am-icon { background-color: var(--success-color, #4caf50); color: white; }
-
         .am-soon { color: #e65100; }
-        .am-soon .am-icon { background-color: #ff9800; color: white; }
-
         .am-overdue { color: var(--error-color, #f44336); }
-        .am-overdue .am-icon { background-color: var(--error-color, #f44336); color: white; }
 
         /* ── Header ── */
         .header {
