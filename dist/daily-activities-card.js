@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.4.8 - Ripple-style hover background
+// Daily Activities Card v2.4.9 - Correct bubble card hover via ::after overlay
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -678,7 +678,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.4.8 */
+        /* Daily Activities Card v2.4.9 */
         :host {
             --am-item-primary-font-size: 15px;
             --am-item-secondary-font-size: 13px;
@@ -770,7 +770,17 @@ class DailyActivitiesCard extends LitElement {
             background-color: var(--bubble-button-background-color, rgba(var(--rgb-primary-text-color, 0, 0, 0), 0.05));
             color: var(--primary-text-color);
         }
-        .am-item:hover { background: radial-gradient(closest-side, var(--md-ripple-pressed-color, var(--md-sys-color-on-surface, #1d1b20)) max(100% - 70px, 65%), transparent 100%); }
+        .am-item::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(closest-side, var(--md-ripple-pressed-color, var(--md-sys-color-on-surface, #1d1b20)) max(100% - 70px, 65%), transparent 100%);
+            opacity: 0;
+            transition: opacity 375ms linear;
+            pointer-events: none;
+        }
+        .am-item:hover::after { opacity: var(--md-ripple-hover-opacity, var(--ha-ripple-hover-opacity, 0.08)); }
         .am-item:active { filter: brightness(0.9); }
         .am-icon {
             display: flex;
