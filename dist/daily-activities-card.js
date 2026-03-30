@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.4.3 - Use HA theme colours, compact icon line-height
+// Daily Activities Card v2.4.4 - Bubble Card styling variables
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -678,11 +678,15 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.4.3 */
+        /* Daily Activities Card v2.4.4 */
         :host {
             --am-item-primary-font-size: 15px;
             --am-item-secondary-font-size: 13px;
             --mdc-theme-primary: var(--primary-text-color);
+        }
+
+        ha-card {
+            background: var(--bubble-main-background-color, var(--ha-card-background, var(--card-background-color, white)));
         }
 
         /* No background mode */
@@ -763,6 +767,8 @@ class DailyActivitiesCard extends LitElement {
             cursor: pointer;
             border: none !important;
             transition: filter 0.1s ease;
+            background-color: var(--bubble-button-background-color, rgba(var(--rgb-primary-text-color, 0, 0, 0), 0.05));
+            color: var(--primary-text-color);
         }
         .am-item:active { filter: brightness(0.9); }
         .am-icon {
@@ -776,6 +782,8 @@ class DailyActivitiesCard extends LitElement {
             min-width: var(--am-icon-container, 48px);
             min-height: var(--am-icon-container, 48px);
             flex-shrink: 0;
+            background-color: var(--bubble-icon-background-color, rgba(var(--rgb-primary-text-color, 0, 0, 0), 0.1));
+            color: var(--primary-text-color);
         }
         .am-item-name {
             flex: 1 1 auto;
