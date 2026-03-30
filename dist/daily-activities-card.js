@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.5.1 - Correct bubble card hover colour
+// Daily Activities Card v2.5.2 - Hover via ::after overlay, preserves base background
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -678,7 +678,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.5.1 */
+        /* Daily Activities Card v2.5.2 */
         :host {
             --am-item-primary-font-size: 15px;
             --am-item-secondary-font-size: 13px;
@@ -770,7 +770,17 @@ class DailyActivitiesCard extends LitElement {
             background-color: var(--bubble-button-background-color, rgba(var(--rgb-primary-text-color, 0, 0, 0), 0.05));
             color: var(--primary-text-color);
         }
-        .am-item:hover { background-color: rgba(184, 192, 224, 0.08); }
+        .am-item::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background-color: rgb(184, 192, 224);
+            opacity: 0;
+            transition: opacity 0.15s ease;
+            pointer-events: none;
+        }
+        .am-item:hover::after { opacity: 0.08; }
         .am-item:active { filter: brightness(0.9); }
         .am-icon {
             display: flex;
