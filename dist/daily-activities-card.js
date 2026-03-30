@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.4.6 - Bubble border and hover background on items
+// Daily Activities Card v2.4.7 - Softer hover background matching border tone
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -678,7 +678,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.4.6 */
+        /* Daily Activities Card v2.4.7 */
         :host {
             --am-item-primary-font-size: 15px;
             --am-item-secondary-font-size: 13px;
@@ -770,7 +770,7 @@ class DailyActivitiesCard extends LitElement {
             background-color: var(--bubble-button-background-color, rgba(var(--rgb-primary-text-color, 0, 0, 0), 0.05));
             color: var(--primary-text-color);
         }
-        .am-item:hover { background-color: var(--md-ripple-hover-color, var(--md-sys-color-on-surface, #1d1b20)); }
+        .am-item:hover { background-color: var(--ha-card-border-color, var(--divider-color, rgba(0,0,0,0.12))); }
         .am-item:active { filter: brightness(0.9); }
         .am-icon {
             display: flex;
