@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.4.1 - Fix icon: white on solid colour background
+// Daily Activities Card v2.4.2 - Updated red/green colour palette
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -678,7 +678,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.4.1 */
+        /* Daily Activities Card v2.4.2 */
         :host {
             --am-item-primary-font-size: 15px;
             --am-item-secondary-font-size: 13px;
@@ -802,14 +802,14 @@ class DailyActivitiesCard extends LitElement {
         }
 
         /* ── State colours ── */
-        .am-done { background-color: rgba(46, 125, 50, 0.25); color: rgb(46, 125, 50); }
-        .am-done .am-icon { background-color: rgb(46, 125, 50); color: white; }
+        .am-done { background-color: rgba(76, 175, 80, 0.25); color: rgb(76, 175, 80); }
+        .am-done .am-icon { background-color: rgb(76, 175, 80); color: white; }
 
         .am-soon { background-color: #fff8e1; color: #e65100; }
         .am-soon .am-icon { background-color: #ff9800; color: white; }
 
-        .am-overdue { background-color: rgba(211, 47, 47, 0.25); color: rgb(211, 47, 47); }
-        .am-overdue .am-icon { background-color: rgb(211, 47, 47); color: white; }
+        .am-overdue { background-color: rgba(244, 67, 54, 0.25); color: rgb(244, 67, 54); }
+        .am-overdue .am-icon { background-color: rgb(244, 67, 54); color: white; }
 
         /* ── Header ── */
         .header {
