@@ -5,7 +5,7 @@ import {
     repeat,
 } from "https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js";
 
-// Daily Activities Card v2.4.2 - Updated red/green colour palette
+// Daily Activities Card v2.4.3 - Use HA theme colours, compact icon line-height
 
 export const utils = {
     _formatTimeAgo: (date) => {
@@ -678,7 +678,7 @@ class DailyActivitiesCard extends LitElement {
     // ─── Styles ──────────────────────────────────────────────────────────────
 
     static styles = css`
-        /* Daily Activities Card v2.4.2 */
+        /* Daily Activities Card v2.4.3 */
         :host {
             --am-item-primary-font-size: 15px;
             --am-item-secondary-font-size: 13px;
@@ -724,6 +724,7 @@ class DailyActivitiesCard extends LitElement {
             min-width: 22px !important; min-height: 22px !important;
             padding: 2px !important; margin-right: 6px !important;
             --mdc-icon-size: 18px !important;
+            line-height: 18px !important;
         }
         .compact .am-item-name { line-height: 1.0 !important; }
 
@@ -802,14 +803,14 @@ class DailyActivitiesCard extends LitElement {
         }
 
         /* ── State colours ── */
-        .am-done { background-color: rgba(76, 175, 80, 0.25); color: rgb(76, 175, 80); }
-        .am-done .am-icon { background-color: rgb(76, 175, 80); color: white; }
+        .am-done { background-color: color-mix(in srgb, var(--success-color, #4caf50) 15%, transparent); color: var(--success-color, #4caf50); }
+        .am-done .am-icon { background-color: var(--success-color, #4caf50); color: white; }
 
         .am-soon { background-color: #fff8e1; color: #e65100; }
         .am-soon .am-icon { background-color: #ff9800; color: white; }
 
-        .am-overdue { background-color: rgba(244, 67, 54, 0.25); color: rgb(244, 67, 54); }
-        .am-overdue .am-icon { background-color: rgb(244, 67, 54); color: white; }
+        .am-overdue { background-color: color-mix(in srgb, var(--error-color, #f44336) 15%, transparent); color: var(--error-color, #f44336); }
+        .am-overdue .am-icon { background-color: var(--error-color, #f44336); color: white; }
 
         /* ── Header ── */
         .header {
